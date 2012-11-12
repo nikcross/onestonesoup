@@ -41,6 +41,16 @@ public class FileHelper {
 			out.close();
 		}
 	}
+	public static void appendStringToFile(String data,File file) throws IOException {
+		OutputStream out = new FileOutputStream(file,true);
+		
+		try{
+			out.write(data.getBytes());
+			out.flush();
+		} finally {
+			out.close();
+		}
+	}
 	public static void moveFileToFolder(String file,String folder,boolean createFolder) throws IOException {
 		moveFileToFolder(new File(file), new File(folder),createFolder);
 	}
@@ -67,4 +77,35 @@ public class FileHelper {
 			throw new IOException("Failed to move "+file.getAbsolutePath()+" to "+destination.getAbsolutePath());			
 		}
 	}
+	public static void copyFileToFile(File fromFile,File toFile) throws IOException {
+		InputStream in = new FileInputStream(fromFile);
+		FileOutputStream oStream = new FileOutputStream(toFile);
+
+		byte[] buffer = new byte[1000];
+		int sizeRead = in.read(buffer);
+		while(sizeRead>0)
+		{
+			oStream.write(buffer,0,sizeRead);
+			oStream.flush();
+			sizeRead = in.read(buffer);
+		}
+		in.close();
+		oStream.close();
+	}
+	
+	public static void copyInputStreamToFile(InputStream fromInputStream,File toFile) throws IOException {
+		FileOutputStream oStream = new FileOutputStream(toFile);
+
+		byte[] buffer = new byte[1000];
+		int sizeRead = fromInputStream.read(buffer);
+		while(sizeRead>0)
+		{
+			oStream.write(buffer,0,sizeRead);
+			oStream.flush();
+			sizeRead = fromInputStream.read(buffer);
+		}
+		fromInputStream.close();
+		oStream.close();
+	}
+	
 }
