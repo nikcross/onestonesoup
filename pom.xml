@@ -1,6 +1,46 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>OneStoneSoup</groupId>
-  <artifactId>OneStoneSoupCore</artifactId>
-  <version>0.0.3-SNAPSHOT</version>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" >
+
+    <modelVersion>
+4.0.0
+    </modelVersion>
+
+    <groupId>
+org.one.stone.soup
+    </groupId>
+
+    <artifactId>
+core
+    </artifactId>
+
+    <version>
+0.0.3-SNAPSHOT
+    </version>
+<dependencies>
+    <dependency>
+    <groupId>junit</groupId>
+    <artifactId>junit</artifactId>
+    <version>4.10</version>
+</dependency>
+            
+</dependencies>
+    <build>
+
+    <plugins>
+ <plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-compiler-plugin</artifactId>
+    <configuration>
+        <source>1.6</source>
+        <target>1.6</target>
+        <showDeprecation>true</showDeprecation>
+        <showWarnings>true</showWarnings>
+        <fork>true</fork>
+    </configuration>
+</plugin>
+    </plugins>
+
+    </build>
+
 </project>
