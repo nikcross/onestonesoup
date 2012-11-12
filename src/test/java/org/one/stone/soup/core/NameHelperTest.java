@@ -7,10 +7,10 @@ import org.one.stone.soup.core.NameHelper;
 
 public class NameHelperTest {
 
-	public String className = "SomeTestCaseTextIMHO";
-	public String dataName = "someTestCaseTextIMHO";
-	public String titleName = "Some Test Case Text IMHO";
-	public String staticName = "SOME_TEST_CASE_TEXT_IMHO";
+	private String className = "SomeTestCaseTextIMHO";
+	private String dataName = "someTestCaseTextIMHO";
+	private String titleName = "Some Test Case Text IMHO";
+	private String staticName = "SOME_TEST_CASE_TEXT_IMHO";
 	
 	@Test
 	public void testCanConvertClassToTitle()
