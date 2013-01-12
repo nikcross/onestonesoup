@@ -111,10 +111,76 @@ public class ObjectTree {
 	
 	private ObjectNode root;
 	
-	public ObjectNode getRoot() {
-		return root;
+	public ObjectTree(String name) {
+		root = new ObjectNode(name);
 	}
+	
 	public ObjectNode addChild(String name) {
 		return root.addChild(name);
 	}
+
+	public String getName() {
+		return root.getName();
+	}
+
+	public String getValue() {
+		return root.getValue();
+	}
+
+	public void setValue(String value) {
+		root.setValue(value);
+	}
+
+	public boolean hasValue() {
+		return root.hasValue();
+	}
+
+	public void setAttribute(String name, String value) {
+		root.setAttribute(name, value);
+	}
+
+	public String getAttribute(String name) {
+		return root.getAttribute(name);
+	}
+
+	public Map<String, String> getAttributes() {
+		return root.getAttributes();
+	}
+
+	public boolean removeAttribute(String name) {
+		return root.removeAttribute(name);
+	}
+
+	public void removeAttributes() {
+		root.removeAttributes();
+	}
+
+	public boolean hasAttribute(String name) {
+		return root.hasAttribute(name);
+	}
+
+	public ObjectNode getChild(String name) {
+		return root.getChild(name);
+	}
+
+	public List<ObjectNode> getChildren(String name) {
+		return root.getChildren(name);
+	}
+
+	public List<ObjectNode> getChildren() {
+		return root.getChildren();
+	}
+
+	public boolean removeChild(String name) {
+		return root.removeChild(name);
+	}
+
+	public void removeChildren(String name) {
+		root.removeChildren(name);
+	}
+
+	public void removeChildren() {
+		root.removeChildren();
+	}
+	
 }
