@@ -14,6 +14,10 @@ public class FileHelper {
 	}
 	public static String loadFileAsString(File file) throws IOException {
 		InputStream in = new FileInputStream(file);
+		return loadFileAsString(in);
+	}
+	
+	public static String loadFileAsString(InputStream in) throws IOException {	
 		StringBuffer data = new StringBuffer();
 		byte[] block = new byte[1000];
 		try{
