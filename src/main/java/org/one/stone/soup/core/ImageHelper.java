@@ -2,6 +2,7 @@ package org.one.stone.soup.core;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.geom.AffineTransform;
@@ -15,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 
 public class ImageHelper {
 
@@ -111,5 +113,19 @@ public class ImageHelper {
 		newSize.height = (int) (height * factor);
 
 		return newSize;
+	}
+	
+	public static BufferedImage convertToBufferedImage(Image image)
+	{
+		if(image instanceof BufferedImage) {
+			return (BufferedImage)image;
+		}
+		
+		ImageIcon icon = new ImageIcon(image);
+        BufferedImage bufferedImage = new BufferedImage(icon.getIconWidth(),icon.getIconHeight(),BufferedImage.TYPE_INT_ARGB);
+        Graphics grfx = bufferedImage.getGraphics();
+        grfx.drawImage(image,0,0,icon.getIconWidth(),icon.getIconHeight(),null);
+
+        return bufferedImage;
 	}
 }
