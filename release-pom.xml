@@ -15,7 +15,7 @@ core
     </artifactId>
 
     <version>
-1.015
+1.016
     </version>
     
     <dependencies>
