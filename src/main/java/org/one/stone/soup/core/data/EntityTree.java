@@ -61,6 +61,11 @@ public class EntityTree {
 			return node;
 		}
 
+		public Entity addChild(Entity entity) {
+			children.add(entity);
+			return entity;
+		}
+
 		public boolean hasAttribute(String name) {
 			if(getAttribute(name)!=null) {
 				return true;
@@ -130,6 +135,10 @@ public class EntityTree {
 		return root.addChild(name);
 	}
 
+	public Entity addChild(Entity entity) {
+		return root.addChild(entity);
+	}
+	
 	public String getName() {
 		return root.getName();
 	}

@@ -112,4 +112,11 @@ public class FileHelper {
 		oStream.close();
 	}
 	
+	public String getExtension(String fileName) {
+		if(fileName.indexOf(".")!=-1) {
+			return fileName.substring(fileName.lastIndexOf("."));
+		} else {
+			return "";
+		}
+	}
 }
