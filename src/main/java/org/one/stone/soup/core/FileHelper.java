@@ -111,6 +111,12 @@ public class FileHelper {
 		fromInputStream.close();
 		oStream.close();
 	}
+	public static int countLines(File file) throws IOException {
+		String data = FileHelper.loadFileAsString(file);
+		String[] lines = data.split("\n");
+		
+		return lines.length;
+	}
 	
 	public String getExtension(String fileName) {
 		if(fileName.indexOf(".")!=-1) {
