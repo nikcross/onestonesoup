@@ -10,6 +10,7 @@ package org.one.stone.soup.java.analysis;
 public class SimpleSourceCodeParser {
 	
 	public SourceCode parseSourceCode(String source) {
-		SourceCode sorceCode = new SourceCode(source);
+		SourceCode sourceCode = new SourceCode(source);
+		return sourceCode;
 	}
 }

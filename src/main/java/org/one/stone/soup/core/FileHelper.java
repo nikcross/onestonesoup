@@ -6,6 +6,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.MessageDigest;
+
+import javax.xml.bind.DatatypeConverter;
 
 public class FileHelper {
 	
@@ -123,6 +126,26 @@ public class FileHelper {
 			return fileName.substring(fileName.lastIndexOf("."));
 		} else {
 			return "";
+		}
+	}
+	
+	public static String generateMD5Checksum(File file) {
+		try{
+			byte[] buffer = new byte[1000];
+			MessageDigest MD5 = MessageDigest.getInstance("MD5");
+			InputStream fromInputStream = new FileInputStream(file);
+			int sizeRead = fromInputStream.read(buffer);
+			while(sizeRead>0)
+			{
+				MD5.update(buffer,0,sizeRead);
+				sizeRead = fromInputStream.read(buffer);
+			}
+			fromInputStream.close();
+			byte[] hash = MD5.digest();
+			
+			return DatatypeConverter.printHexBinary(hash);
+		} catch (Exception e) {
+			return e.getMessage();
 		}
 	}
 }

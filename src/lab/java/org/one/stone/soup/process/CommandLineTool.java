@@ -28,10 +28,8 @@ public abstract class CommandLineTool {
 		
 		if( parameters.size()<getMinimumArguments() && parameters.size()<getMaximumArguments() ) {
 			displayUsage();
-			return;
+			System.exit(1);
 		}
-		
-		process();
 	}
 
 	private Map<String,String> options = new HashMap<String,String>();
