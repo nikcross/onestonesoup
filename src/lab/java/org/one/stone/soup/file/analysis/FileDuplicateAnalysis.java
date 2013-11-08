@@ -16,6 +16,7 @@ public class FileDuplicateAnalysis extends CommandLineTool {
 	private long duplicateBytesRead;
 	private long directoriesProcessed;
 	private long filesProcessed;
+	private long duplicateFilesRead;
 	
 	public static final void main(String[] args) {
 		new FileDuplicateAnalysis(args);
@@ -46,11 +47,14 @@ public class FileDuplicateAnalysis extends CommandLineTool {
 		duplicateBytesRead=0;
 		directoriesProcessed=0;
 		filesProcessed=0;
+		duplicateFilesRead=0;
 		
 		map = new HashMap<String,File>();
 		File root = new File( getParameter(0) );
 		logFile = new LogFile( getParameter(1) );
 		processDirectory(root);
+		
+		logFile.logMessage("Processed "+filesProcessed+" files in "+directoriesProcessed+" directories. Duplicates found: "+duplicateFilesRead+". "+bytesRead+" bytes read of which "+duplicateBytesRead+" was duplicate data.");
 	}
 	
 	private void processDirectory(File directory) {
@@ -65,7 +69,7 @@ public class FileDuplicateAnalysis extends CommandLineTool {
 		
 		for(File file: files) {
 			if(filesProcessed%100==0) {
-				System.out.println("Processed "+filesProcessed+" files in "+directoriesProcessed+" directories. "+bytesRead+" bytes read of which "+duplicateBytesRead+" was duplicate data.");
+				System.out.println("Processed "+filesProcessed+" files in "+directoriesProcessed+" directories. Duplicates found: "+duplicateFilesRead+". "+bytesRead+" bytes read of which "+duplicateBytesRead+" was duplicate data.");
 			}
 			
 			if(file.isDirectory()) {
@@ -86,6 +90,7 @@ public class FileDuplicateAnalysis extends CommandLineTool {
 			if(map.get(check)!=null) {
 				logFile.logMessage("Found match "+file.getAbsolutePath()+" = "+map.get(check).getAbsolutePath()+" MD5:"+check);
 				duplicateBytesRead+=file.length();
+				duplicateFilesRead++;
 			} else {
 				if(hasOption("D")) {
 					boolean result = file.delete();
@@ -101,9 +106,5 @@ public class FileDuplicateAnalysis extends CommandLineTool {
 			filesProcessed++;
 			bytesRead+=file.length();
 		}
-		
-		logFile.logMessage("Processed "+filesProcessed+" files in "+directoriesProcessed+" directories. "+bytesRead+" bytes read of which "+duplicateBytesRead+" was duplicate data.");
-	}
-
-	
+	}	
 }
