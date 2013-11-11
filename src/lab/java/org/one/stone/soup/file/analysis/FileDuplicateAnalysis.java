@@ -91,7 +91,7 @@ public class FileDuplicateAnalysis extends CommandLineTool {
 				logFile.logMessage("Found match "+file.getAbsolutePath()+" = "+map.get(check).getAbsolutePath()+" MD5:"+check);
 				duplicateBytesRead+=file.length();
 				duplicateFilesRead++;
-			} else {
+				
 				if(hasOption("D")) {
 					boolean result = file.delete();
 					if(result==false) {
@@ -99,9 +99,9 @@ public class FileDuplicateAnalysis extends CommandLineTool {
 					} else {
 						logFile.logMessage("DELETED "+file.getAbsolutePath());
 					}
-				} else {
-					map.put(check, file);
 				}
+			} else {
+				map.put(check, file);
 			}
 			filesProcessed++;
 			bytesRead+=file.length();
