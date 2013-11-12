@@ -87,6 +87,10 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 		}
 		running = true;
 		
+		if(hasOption("R")) {
+			pageFile = getOption("R");
+		}
+		
 		System.out.println("Server ready and waiting.");
 		while(running==true) {
 			
@@ -202,6 +206,20 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 	public String[] listServices() {
 		return services.keySet().toArray(new String[]{});
 	}
+
+	public void registerService(String key,String serviceClass) {
+		Object service;
+		try {
+			service = Class.forName(serviceClass).newInstance();
+			registerService(key, service);
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+	}	
 	
 	public void registerService(String key,Object service) {
 		services.put(key, service);

@@ -1,0 +1,9 @@
+<app>
+	<name>boot-loader</name>
+	<page-template>app.html</page-template>
+	<scripts>
+		open-forum.js
+		tree.js
+	</scripts>
+	<styles></styles>
+</app>
