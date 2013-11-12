@@ -31,4 +31,7 @@ public class StringHelper {
 	public static String repeat(String data, int number) {
 		return new String(new char[number]).replace("\0", data);
 	}
+	public static String after(String request, String value) {
+		return request.substring(request.indexOf(value)+value.length());
+	}
 }

@@ -7,16 +7,16 @@ import java.util.Map;
 
 public class EntityTree {
 
-	public class Entity {
+	public class TreeEntity {
 		private String name;
 		private String value; 
 		private Map<String,String> attributes;
-		private List<Entity> children;
+		private List<TreeEntity> children;
 		
-		private Entity(String name) {
+		private TreeEntity(String name) {
 			this.name = name;
 			attributes = new HashMap<String,String>();
-			children = new ArrayList<Entity>();
+			children = new ArrayList<TreeEntity>();
 			value=null;
 		}
 		public String getName() {
@@ -55,13 +55,13 @@ public class EntityTree {
 		public void removeAttributes() {
 			attributes = new HashMap<String,String>();
 		}
-		public Entity addChild(String name) {
-			Entity node = new Entity(name);
+		public TreeEntity addChild(String name) {
+			TreeEntity node = new TreeEntity(name);
 			children.add(node);
 			return node;
 		}
 
-		public Entity addChild(Entity entity) {
+		public TreeEntity addChild(TreeEntity entity) {
 			children.add(entity);
 			return entity;
 		}
@@ -73,29 +73,29 @@ public class EntityTree {
 				return false;
 			}
 		}
-		public Entity getChild(String name) {
-			List<Entity> matches = getChildren(name);
+		public TreeEntity getChild(String name) {
+			List<TreeEntity> matches = getChildren(name);
 			if(matches.size()==1){
 				return matches.get(0);
 			} else {
 				return null;
 			}
 		}
-		public List<Entity> getChildren(String name) {
-			List<Entity> matches = new ArrayList<Entity>();
+		public List<TreeEntity> getChildren(String name) {
+			List<TreeEntity> matches = new ArrayList<TreeEntity>();
 			
-			for(Entity node: children) {
+			for(TreeEntity node: children) {
 				if(node.getName().equals(name)) {
 					matches.add(node);
 				}
 			}
 			return matches;
 		}
-		public List<Entity> getChildren() {
+		public List<TreeEntity> getChildren() {
 			return children;
 		}
 		public boolean removeChild(String name) {
-			Entity target = getChild(name);
+			TreeEntity target = getChild(name);
 			if(target==null) {
 				return false;
 			} else {
@@ -104,13 +104,13 @@ public class EntityTree {
 			}
 		}
 		public void removeChildren(String name) {
-			List<Entity> matches = getChildren(name);
-			for(Entity target: matches) {
+			List<TreeEntity> matches = getChildren(name);
+			for(TreeEntity target: matches) {
 				children.remove(target);
 			}
 		}
 		public void removeChildren() {
-			children = new ArrayList<Entity>();
+			children = new ArrayList<TreeEntity>();
 		}
 		public boolean hasChildren() {
 			if(children.size()==0) {
@@ -121,21 +121,21 @@ public class EntityTree {
 		}
 	}
 	
-	private Entity root;
+	private TreeEntity root;
 	
 	public EntityTree(String name) {
-		root = new Entity(name);
+		root = new TreeEntity(name);
 	}
 	
-	public EntityTree(Entity root) {
+	public EntityTree(TreeEntity root) {
 		this.root = root;
 	}
 	
-	public Entity addChild(String name) {
+	public TreeEntity addChild(String name) {
 		return root.addChild(name);
 	}
 
-	public Entity addChild(Entity entity) {
+	public TreeEntity addChild(TreeEntity entity) {
 		return root.addChild(entity);
 	}
 	
@@ -179,15 +179,15 @@ public class EntityTree {
 		return root.hasAttribute(name);
 	}
 
-	public Entity getChild(String name) {
+	public TreeEntity getChild(String name) {
 		return root.getChild(name);
 	}
 
-	public List<Entity> getChildren(String name) {
+	public List<TreeEntity> getChildren(String name) {
 		return root.getChildren(name);
 	}
 
-	public List<Entity> getChildren() {
+	public List<TreeEntity> getChildren() {
 		return root.getChildren();
 	}
 
@@ -203,7 +203,7 @@ public class EntityTree {
 		root.removeChildren();
 	}
 
-	public Entity getRoot() {
+	public TreeEntity getRoot() {
 		return root;
 	}
 	

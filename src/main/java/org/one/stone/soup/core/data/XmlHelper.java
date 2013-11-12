@@ -9,7 +9,7 @@ import java.io.InputStream;
 import java.util.Map;
 
 import org.one.stone.soup.core.StringHelper;
-import org.one.stone.soup.core.data.EntityTree.Entity;
+import org.one.stone.soup.core.data.EntityTree.TreeEntity;
 
 
 public class XmlHelper {
@@ -32,7 +32,7 @@ public class XmlHelper {
 
 			EntityTree entityTree = new EntityTree( "root" );
 			BufferedInputStream bin = new BufferedInputStream(in);
-			Entity entity = parseEntity( entityTree.getRoot(),bin );
+			TreeEntity entity = parseEntity( entityTree.getRoot(),bin );
 			entityTree = new EntityTree(entity);
 			
 			return entityTree;
@@ -43,7 +43,7 @@ public class XmlHelper {
 		}
 	}
 
-	private static Entity parseEntity(Entity parent,BufferedInputStream in) throws IOException {
+	private static TreeEntity parseEntity(TreeEntity parent,BufferedInputStream in) throws IOException {
 		String prefix = cutTo(in,'<').trim();
 		parent.setValue( prefix );
 		String tag = cutTo(in,'>');
@@ -57,7 +57,7 @@ public class XmlHelper {
 		if(name.equals("/"+parent.getName())) {
 			return null;
 		}
-		Entity entity = parent.addChild(name);
+		TreeEntity entity = parent.addChild(name);
 		//Add Attributes
 		tag = tag.trim();
 		if(tag.length()>0) {
@@ -75,7 +75,7 @@ public class XmlHelper {
 			return entity;
 		}
 		
-		Entity child = parseEntity(entity,in);
+		TreeEntity child = parseEntity(entity,in);
 		while(child!=null) {
 			child = parseEntity(entity,in);
 		}
@@ -118,7 +118,7 @@ public class XmlHelper {
 		return result.toString();
 	}
 	
-	private static void bufferToXml(StringBuffer result,int depth,Entity entity, boolean beautify) {
+	private static void bufferToXml(StringBuffer result,int depth,TreeEntity entity, boolean beautify) {
 		String newLine = "";
 		String tabs = "";
 		if(beautify==true) {
@@ -147,7 +147,7 @@ public class XmlHelper {
 		}
 		if(entity.hasChildren()) {
 			result.append(newLine);
-			for(Entity child: entity.getChildren()) {
+			for(TreeEntity child: entity.getChildren()) {
 				bufferToXml(result, depth+1, child, beautify);
 				result.append(newLine);
 			}

@@ -39,8 +39,8 @@ public abstract class CommandLineTool {
 		System.out.println("Usage: "+getUsage());
 	}
 	
-	public String getOption(int index) {
-		return options.get(index);
+	public String getOption(String key) {
+		return options.get(key);
 	}
 	
 	public boolean hasOption(String name) {

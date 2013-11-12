@@ -10,7 +10,7 @@ import java.util.List;
 
 public class EntityTable {
 	
-	public interface EntityComparator extends Comparator<Entity> {
+	public interface EntityComparator extends Comparator<TableEntity> {
 		
 	}
 	
@@ -21,7 +21,7 @@ public class EntityTable {
 			this.format = new SimpleDateFormat(dateFormat);
 			this.columnIndex = getColumnIndex(columnName);
 		}
-		public int compare(Entity row1, Entity row2) {
+		public int compare(TableEntity row1, TableEntity row2) {
 			try{
 				Date date1 = format.parse(row1.getColumn(columnIndex));
 				Date date2 = format.parse(row2.getColumn(columnIndex));
@@ -33,10 +33,10 @@ public class EntityTable {
 		
 	}
 	
-	public class Entity {
+	public class TableEntity {
 		private String[] columns;
 		
-		private Entity(int columns) {
+		private TableEntity(int columns) {
 			this.columns = new String[columns];
 		}
 		public int size() {
@@ -50,15 +50,15 @@ public class EntityTable {
 		}
 	}
 	
-	private Entity columnDefinition;
-	private List<Entity> rows;
+	private TableEntity columnDefinition;
+	private List<TableEntity> rows;
 	
 	public EntityTable(String[] columnNames) {
-		columnDefinition = new Entity(columnNames.length);
+		columnDefinition = new TableEntity(columnNames.length);
 		for(int columnIndex=0;columnIndex<columnNames.length;columnIndex++) {
 			columnDefinition.setColumn(columnIndex, columnNames[columnIndex]);
 		}
-		rows = new ArrayList<Entity>();
+		rows = new ArrayList<TableEntity>();
 	}
 	
 	public int columns() {
@@ -69,8 +69,8 @@ public class EntityTable {
 		return rows.size();
 	}
 	
-	public Entity addRow(String[] data) {
-		Entity row = new Entity(columnDefinition.columns.length);
+	public TableEntity addRow(String[] data) {
+		TableEntity row = new TableEntity(columnDefinition.columns.length);
 		for(int columnIndex=0;columnIndex<data.length;columnIndex++) {
 			row.setColumn(columnIndex, data[columnIndex]);
 		}	
@@ -78,7 +78,7 @@ public class EntityTable {
 		return row;
 	}
 	
-	public Entity getColumnDefinitions() {
+	public TableEntity getColumnDefinitions() {
 		return columnDefinition;
 	}
 	
@@ -91,7 +91,7 @@ public class EntityTable {
 		return -1;
 	}
 	
-	public Entity getRow(int rowIndex) {
+	public TableEntity getRow(int rowIndex) {
 		return rows.get(rowIndex);
 	}
 	

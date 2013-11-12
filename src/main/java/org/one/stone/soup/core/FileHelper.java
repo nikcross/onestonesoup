@@ -148,4 +148,13 @@ public class FileHelper {
 			return e.getMessage();
 		}
 	}
+	public static void saveStringToOutputStream(String data,
+			OutputStream out) throws IOException {
+		try{
+			out.write(data.getBytes());
+			out.flush();
+		} finally {
+			out.close();
+		}
+	}
 }
