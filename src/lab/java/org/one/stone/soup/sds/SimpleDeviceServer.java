@@ -12,16 +12,29 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.script.ScriptException;
+
 import org.one.stone.soup.core.FileHelper;
 import org.one.stone.soup.core.JSONHelper;
 import org.one.stone.soup.core.StringHelper;
 import org.one.stone.soup.core.data.EntityTree;
 import org.one.stone.soup.core.data.EntityTree.TreeEntity;
 import org.one.stone.soup.core.data.KeyValuePair;
+import org.one.stone.soup.core.javascript.JavascriptEngine;
 import org.one.stone.soup.process.CommandLineTool;
 
 
 public class SimpleDeviceServer extends CommandLineTool implements Runnable{
+	
+	private JavascriptEngine jsEngine;
+	private ServerSocket serverSocket;
+	private boolean running=false;
+	private int port;
+	private String address;
+	private String application;
+	private String pageFile;
+	private Map<String,Object> services;
+	
 	public static void main(String[] args) {
 		new SimpleDeviceServer(args);
 	}
@@ -33,7 +46,7 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 
 	@Override
 	public int getMinimumArguments() {
-		return 0;
+		return 1;
 	}
 
 	@Override
@@ -43,42 +56,14 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 
 	@Override
 	public String getUsage() {
-		return "nottin yet";
+		return "[-P=port] [-A=address] application-start-file.sjs";
 	}
-
-	private ServerSocket serverSocket;
-	private boolean running=false;
-	private int port = 8080;
-	private String address = "localhost";
-	private String pageFile = "app.html";
-	private Map<String,Object> services;
 	
 	@Override
 	public void process() {
-		if(hasOption("P")) {
-			port = Integer.parseInt(getOption("P"));
-		}
-		if(hasOption("A")) {
-			address = getOption("A");
-		}
-		if(hasOption("R")) {
-			pageFile = getOption("R");
-		}
-		
 		services = new HashMap<String,Object>();
-		services.put("server", this);
 		
-		try {
-			serverSocket = new ServerSocket(port,10,InetAddress.getByName(address));
-			System.out.println( "ServerSocket open on "+serverSocket.getInetAddress());
-			System.out.println( "App boot loader file will be "+new File(pageFile).getAbsolutePath() );
-			
-			new Thread(this,"SimpleDeviceServer").start();
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		new Thread(this,"SimpleDeviceServer").start();
 	}
 	
 	public void run() {
@@ -87,11 +72,28 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 		}
 		running = true;
 		
-		if(hasOption("R")) {
-			pageFile = getOption("R");
+		if(hasOption("P")) {
+			port = Integer.parseInt(getOption("P"));
+		}
+		if(hasOption("H")) {
+			address = getOption("H");
 		}
 		
-		System.out.println("Server ready and waiting.");
+		application = getParameter(0);
+		initialiseJSEngine();
+	
+		try{
+			serverSocket = new ServerSocket(port,10,InetAddress.getByName(address));
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+			running = false;
+			return;
+		} catch (IOException e) {
+			e.printStackTrace();
+			running = false;
+			return;
+		}
+		
 		while(running==true) {
 			
 			try {
@@ -101,6 +103,10 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 					sendPage(header,socket);
 				} else if(header.getAttribute("resource").startsWith("/service?")) {
 					processRequest(header,socket);
+				} else if(header.getAttribute("resource").startsWith("/favicon.ico")) {
+					sendIcon(header,socket);
+				} else {
+					send404(header,socket);
 				}
 				socket.close();
 				
@@ -110,6 +116,22 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 		}
 	}
 	
+	private void initialiseJSEngine() {
+		jsEngine = new JavascriptEngine();
+		jsEngine.mount("server",this);
+		jsEngine.mount("sjs",jsEngine);
+		
+		try {
+			print("Loading "+new File(application).getAbsolutePath());
+			
+			jsEngine.runScript( FileHelper.loadFileAsString(application) );
+		} catch (ScriptException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	private EntityTree parseHeader(Socket socket) throws IOException {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		EntityTree header = new EntityTree("http-header");
@@ -153,6 +175,30 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 		FileHelper.saveStringToOutputStream( data.toString(), socket.getOutputStream() );
 	}
 	
+	private void send404(EntityTree header,Socket socket) throws IOException {
+		StringBuilder data = new StringBuilder();
+		data.append("HTTP/1.1 404 Not Found\n");
+		data.append("Server: Simple Sevice Server\n\n");
+		
+		data.append( FileHelper.loadFileAsString(pageFile) );
+		FileHelper.saveStringToOutputStream( data.toString(), socket.getOutputStream() );
+	}
+	
+	private void sendIcon(EntityTree header,Socket socket) throws IOException {
+		File icon = new File(new File(pageFile).getParentFile().getAbsolutePath()+"favicon.ico");
+		if(icon.exists()==false) {
+			send404(header, socket);
+		}
+		StringBuilder data = new StringBuilder();
+		data.append("HTTP/1.1 200 OK\n");
+		data.append("Server: Simple Sevice Server\n");
+		data.append("Content-Length: "+icon.length()+"\n");
+		data.append("Content-Type: text/html\n\n");
+		
+		data.append( FileHelper.loadFileAsString(icon) );
+		FileHelper.saveStringToOutputStream( data.toString(), socket.getOutputStream() );
+	}
+	
 	private void processRequest(EntityTree header,Socket socket) {
 		String request = header.getAttribute("resource");
 		request = StringHelper.after(request,"/service?");
@@ -164,13 +210,26 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 		}
 		String serviceName = parameters.getChild("name").getValue();
 		String serviceMethod = parameters.getChild("method").getValue();
-		String[] serviceArgs = parameters.getChild("args").getValue().split(" ");
+		String[] serviceValues = parameters.getChild("values").getValue().split(",");
 		
 		Object service = services.get(serviceName);
 
 		try {
-			Object response = service.getClass().getMethod(serviceMethod,String[].class).invoke(service,serviceArgs);
-			String responseData = JSONHelper.toJSON(response);
+			Object response = null;
+			if(serviceValues.length==0) {
+				response = service.getClass().getMethod(serviceMethod,null).invoke(service);
+			} else if(serviceValues.length==1) {
+				response = service.getClass().getMethod(serviceMethod,String.class).invoke(service,serviceValues[0]);
+			} else {
+				response = service.getClass().getMethod(serviceMethod,String[].class).invoke(service,serviceValues);
+			}
+			String responseData = null;
+			if(response instanceof String) {
+				responseData = (String) response;
+			} else {
+				JSONHelper.toJSON(response);
+			}
+			
 			StringBuilder responseHeader = new StringBuilder();
 			responseHeader.append("HTTP/1.1 200 OK\n");
 			responseHeader.append("Server: Simple Sevice Server\n");
@@ -207,6 +266,10 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 		return services.keySet().toArray(new String[]{});
 	}
 
+	public Object getService(String key) {
+		return services.get(key);
+	}
+	
 	public void registerService(String key,String serviceClass) {
 		Object service;
 		try {
@@ -223,5 +286,39 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 	
 	public void registerService(String key,Object service) {
 		services.put(key, service);
+	}
+	
+	public void setPort(int port) throws Exception {
+		if(running) {
+			throw new Exception("Port set too late. Server already running.");
+		}
+		this.port = port;
+	}
+
+	public void setAddress(String address) throws Exception {
+		if(running) {
+			throw new Exception("Address set too late. Server already running.");
+		}
+		this.address = address;
+	}
+
+	public boolean isRunning() {
+		return running;
+	}
+	
+	public String getPageFile() {
+		return pageFile;
+	}
+	
+	public void setPageFile(String pageFile) {
+		this.pageFile = pageFile;
+	}
+	
+	public String getPort() {
+		return ""+port;
+	}
+	
+	public String getAddress() {
+		return address;
 	}
 }

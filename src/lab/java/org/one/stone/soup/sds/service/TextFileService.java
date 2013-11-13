@@ -9,7 +9,7 @@ public class TextFileService implements SDSService {
 
 	private String root = null;
 	public void setRoot(String root) throws Exception {
-		if(root==null) {
+		if(this.root==null) {
 			this.root = root;
 		} else {
 			throw new Exception("Cannot reset root once set.");
