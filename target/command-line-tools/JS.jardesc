@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<jardesc>
+    <jar path="core/target/command-line-tools/JS.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/core/target/command-line-tools/JS.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <manifest generateManifest="true" mainClassHandleIdentifier="=core/src\/lab\/java&lt;org.one.stone.soup.core.javascript{JS.java[JS" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
+        <sealing sealJar="false">
+            <packagesToSeal/>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
+        <javaElement handleIdentifier="=core/src\/lab\/java"/>
+        <javaElement handleIdentifier="=core/src\/main\/java"/>
+    </selectedElements>
+</jardesc>

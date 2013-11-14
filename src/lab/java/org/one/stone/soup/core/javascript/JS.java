@@ -101,7 +101,7 @@ public class JS extends CommandLineTool implements Runnable{
 		
 		BufferedReader reader = new BufferedReader( new InputStreamReader(System.in) );
 		try {
-			System.out.print("> ");
+			System.out.print("JS> ");
 			String line = reader.readLine();
 			
 			while(line != null) {
@@ -111,7 +111,7 @@ public class JS extends CommandLineTool implements Runnable{
 					System.err.println(e.getMessage());
 				}
 				
-				System.out.print("> ");
+				System.out.print("JS> ");
 				line = reader.readLine();
 			}
 			
