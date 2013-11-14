@@ -40,7 +40,7 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 	}
 
 	public SimpleDeviceServer() {
-		super(new String[]{});
+		super(new String[]{"-N"});
 	}
 
 	@Override
@@ -55,12 +55,14 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 
 	@Override
 	public String getUsage() {
-		return "[-P=port] [-H=host]";
+		return "[-P=port] [-H=host] [-N=no start]";
 	}
 	
 	@Override
 	public void process() {
-		start();
+		if(hasOption("N")) {
+			start();
+		}
 	}
 	
 	public void start() {
