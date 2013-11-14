@@ -17,6 +17,16 @@ public class JavascriptEngine {
 		return engine.eval(script);
 	}
 	
+	public Object runScript(String script,String fileName) throws ScriptException {
+		String currentFileName = (String) engine.get(ScriptEngine.FILENAME);
+		try{
+			engine.put(ScriptEngine.FILENAME,fileName);
+			return engine.eval(script);
+		} finally {
+			engine.put(ScriptEngine.FILENAME,currentFileName);
+		}
+	}
+	
 	public void mount(String alias,Object api) {
 		engine.put(alias, api);
 	}

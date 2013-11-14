@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -12,26 +13,21 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.script.ScriptException;
-
 import org.one.stone.soup.core.FileHelper;
 import org.one.stone.soup.core.JSONHelper;
 import org.one.stone.soup.core.StringHelper;
 import org.one.stone.soup.core.data.EntityTree;
 import org.one.stone.soup.core.data.EntityTree.TreeEntity;
 import org.one.stone.soup.core.data.KeyValuePair;
-import org.one.stone.soup.core.javascript.JavascriptEngine;
 import org.one.stone.soup.process.CommandLineTool;
 
 
 public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 	
-	private JavascriptEngine jsEngine;
 	private ServerSocket serverSocket;
 	private boolean running=false;
-	private int port;
-	private String address;
-	private String application;
+	private int port=8080;
+	private String address="localhost";
 	private String pageFile;
 	private Map<String,Object> services;
 	
@@ -43,10 +39,13 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 		super(args);
 	}
 
+	public SimpleDeviceServer() {
+		super(new String[]{});
+	}
 
 	@Override
 	public int getMinimumArguments() {
-		return 1;
+		return 0;
 	}
 
 	@Override
@@ -56,11 +55,15 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 
 	@Override
 	public String getUsage() {
-		return "[-P=port] [-A=address] application-start-file.sjs";
+		return "[-P=port] [-H=host]";
 	}
 	
 	@Override
 	public void process() {
+		start();
+	}
+	
+	public void start() {
 		services = new HashMap<String,Object>();
 		
 		new Thread(this,"SimpleDeviceServer").start();
@@ -78,9 +81,6 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 		if(hasOption("H")) {
 			address = getOption("H");
 		}
-		
-		application = getParameter(0);
-		initialiseJSEngine();
 	
 		try{
 			serverSocket = new ServerSocket(port,10,InetAddress.getByName(address));
@@ -113,22 +113,6 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}
-		}
-	}
-	
-	private void initialiseJSEngine() {
-		jsEngine = new JavascriptEngine();
-		jsEngine.mount("server",this);
-		jsEngine.mount("sjs",jsEngine);
-		
-		try {
-			print("Loading "+new File(application).getAbsolutePath());
-			
-			jsEngine.runScript( FileHelper.loadFileAsString(application) );
-		} catch (ScriptException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -211,18 +195,9 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 		String serviceName = parameters.getChild("name").getValue();
 		String serviceMethod = parameters.getChild("method").getValue();
 		String[] serviceValues = parameters.getChild("values").getValue().split(",");
-		
-		Object service = services.get(serviceName);
 
 		try {
-			Object response = null;
-			if(serviceValues.length==0) {
-				response = service.getClass().getMethod(serviceMethod,null).invoke(service);
-			} else if(serviceValues.length==1) {
-				response = service.getClass().getMethod(serviceMethod,String.class).invoke(service,serviceValues[0]);
-			} else {
-				response = service.getClass().getMethod(serviceMethod,String[].class).invoke(service,serviceValues);
-			}
+			Object response = callServiceMethod(serviceName, serviceMethod, serviceValues, header, socket);
 			String responseData = null;
 			if(response instanceof String) {
 				responseData = (String) response;
@@ -254,12 +229,36 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 		}
 	}
 	
-	public void stop() {
-		running = false;
+	public interface Factory {
+		public Object newInstance();
 	}
 	
-	public void print(String message) {
-		System.out.println(message);
+	private Object callServiceMethod(String serviceName,String serviceMethod,String[] serviceValues, EntityTree header,Socket socket) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+		
+		Object service = services.get(serviceName);
+		if(service instanceof Factory) {
+			service = ((Factory)service).newInstance();
+			try{
+				Method setter = service.getClass().getMethod("setHeader", EntityTree.class);
+				setter.invoke(service,header);
+			} catch(NoSuchMethodException e) {}
+			try{
+				Method setter = service.getClass().getMethod("setSocket", Socket.class);
+				setter.invoke(service,socket);
+			} catch(NoSuchMethodException e) {}
+		}
+		
+		if(serviceValues.length==0) {
+			return service.getClass().getMethod(serviceMethod,null).invoke(service);
+		} else if(serviceValues.length==1) {
+			return service.getClass().getMethod(serviceMethod,String.class).invoke(service,serviceValues[0]);
+		} else {
+			return service.getClass().getMethod(serviceMethod,String[].class).invoke(service,serviceValues);
+		}
+	}
+	
+	public void stop() {
+		running = false;
 	}
 	
 	public String[] listServices() {

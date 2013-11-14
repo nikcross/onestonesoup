@@ -52,6 +52,9 @@ public abstract class CommandLineTool {
 	}
 	
 	public String getParameter(int index) {
+		if(index<0 || index>=parameters.size()) {
+			return null;
+		}
 		return parameters.get(index);
 	}
 	

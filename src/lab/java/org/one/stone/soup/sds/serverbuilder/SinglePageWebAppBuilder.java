@@ -48,7 +48,15 @@ public class SinglePageWebAppBuilder extends CommandLineTool {
 			String[] scripts = build.getChild("scripts").getValue().split("\n");
 			StringBuilder scriptData = new StringBuilder();
 			for(String script: scripts) {
-				script = script.trim();
+				String[] lines = script.split("\n");
+				script="";
+				for(String line: lines) {
+					line = line.trim();
+					if(line.endsWith(";")==false) {
+						line+=";";
+					}
+					script+=line;
+				}
 				scriptData.append( FileHelper.loadFileAsString(buildRoot+"/scripts/"+script) );
 			}
 			pageTemplate = pageTemplate.replace("&script;", scriptData);
