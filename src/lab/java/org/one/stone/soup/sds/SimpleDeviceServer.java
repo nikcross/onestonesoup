@@ -21,6 +21,7 @@ import org.one.stone.soup.core.data.EntityTree.TreeEntity;
 import org.one.stone.soup.core.data.KeyValuePair;
 import org.one.stone.soup.process.CommandLineTool;
 
+import sun.org.mozilla.javascript.internal.NativeObject;
 import sun.org.mozilla.javascript.internal.Scriptable;
 
 
@@ -261,14 +262,25 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 			} catch(NoSuchMethodException e) {}
 		}
 		
-		if(service instanceof sun.org.mozilla.javascript.internal.NativeObject) {
-			return sun.org.mozilla.javascript.internal.NativeObject.callMethod((Scriptable)service, serviceMethod, new Object[]{});
+		if(service instanceof NativeObject) {
+			return callJSServiceMethod((NativeObject)service, serviceMethod, serviceValues, header, socket);
 		} else if(serviceValues.length==0) {
 			return service.getClass().getMethod(serviceMethod,null).invoke(service);
 		} else if(serviceValues.length==1) {
 			return service.getClass().getMethod(serviceMethod,String.class).invoke(service,serviceValues[0]);
 		} else {
 			return service.getClass().getMethod(serviceMethod,String[].class).invoke(service,serviceValues);
+		}
+	}
+	
+	private Object callJSServiceMethod(NativeObject service,String serviceMethod,String[] serviceValues, EntityTree header,Socket socket) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+
+		if(serviceValues.length==0) {
+			return NativeObject.callMethod((Scriptable)service, serviceMethod, new Object[]{});
+		} else if(serviceValues.length==1) {
+			return NativeObject.callMethod((Scriptable)service, serviceMethod, new Object[]{serviceValues[0]});
+		} else {
+			return NativeObject.callMethod((Scriptable)service, serviceMethod, serviceValues);
 		}
 	}
 	

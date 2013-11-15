@@ -63,7 +63,7 @@ public class TransientMessageQueue {
 		this.lifeTime =lifeTime;  
 	}
 	
-	public void post(String message) {
+	public void postMessage(String message) {
 		entries.add( new QueueEntry(message) );
 	}
 	
