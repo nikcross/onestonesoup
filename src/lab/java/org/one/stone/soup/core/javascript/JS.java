@@ -1,6 +1,7 @@
 package org.one.stone.soup.core.javascript;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -85,6 +86,7 @@ public class JS extends CommandLineTool implements Runnable{
 		
 		if(getParameter(0)!=null) {
 			try {
+				System.out.println("running "+new File(getParameter(0)).getAbsolutePath());
 				jsEngine.runScript( FileHelper.loadFileAsString(getParameter(0)),getParameter(0) );
 			} catch (ScriptException e) {
 				e.printStackTrace();
