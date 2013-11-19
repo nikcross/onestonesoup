@@ -12,7 +12,9 @@ import java.awt.image.FilteredImageSource;
 import java.awt.image.ImageProducer;
 import java.awt.image.PixelGrabber;
 import java.awt.image.RGBImageFilter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -22,6 +24,44 @@ public class ImageHelper {
 
 	public static BufferedImage loadImage(File file) throws IOException {
 		return ImageIO.read(file);
+	}
+	
+	public static void saveImage(File file,BufferedImage image) throws IOException {
+		ImageIO.write(image, "PNG", file);
+	}
+	
+	public static void savePNGImage(File file,BufferedImage image) throws IOException {
+		ImageIO.write(image, "PNG", file);
+	}
+	
+	public static void saveBMPImage(File file,BufferedImage image) throws IOException {
+		ImageIO.write(image, "BMP", file);
+	}
+	
+	//Reference: http://en.wikipedia.org/wiki/ICO_(file_format)#Icon_resource_structure
+	public static void saveICOImage(File file,BufferedImage image) throws IOException {
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		ImageIO.write(image, "PNG", bos);
+		
+		FileOutputStream out = new FileOutputStream(file);
+		out.write(new byte[]{0x0,0x0,0x0,0x1,0x0,0x1});
+		
+
+		out.write(new byte[]{
+				(byte)image.getWidth(),
+				(byte)image.getHeight(),
+				0x0,0x0,0x0,0x0,0x0,0x0,
+				size
+				offset
+				});
+		out.write(bos.toByteArray());
+		
+		out.flush();
+		out.close();
+	}
+	
+	public static void saveJPEGImage(File file,BufferedImage image) throws IOException {
+		ImageIO.write(image, "JPG", file);
 	}
 
 	public static Image makeColorTransparent(Image image, Color color) {
