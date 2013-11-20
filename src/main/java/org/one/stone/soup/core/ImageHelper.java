@@ -16,6 +16,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -40,22 +41,24 @@ public class ImageHelper {
 	
 	//Reference: http://en.wikipedia.org/wiki/ICO_(file_format)#Icon_resource_structure
 	public static void saveICOImage(File file,BufferedImage image) throws IOException {
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		ImageIO.write(image, "PNG", bos);
+		ByteArrayOutputStream img = new ByteArrayOutputStream();
+		ImageIO.write(image, "PNG", img);
 		
-		FileOutputStream out = new FileOutputStream(file);
-		out.write(new byte[]{0x0,0x0,0x0,0x1,0x0,0x1});
-		
-
-		out.write(new byte[]{
+		ByteArrayOutputStream head = new ByteArrayOutputStream();
+		head.write(new byte[]{0x0,0x0,0x1,0x0,0x1,0x0});
+		head.write(new byte[]{
 				(byte)image.getWidth(),
 				(byte)image.getHeight(),
-				0x0,0x0,0x0,0x0,0x0,0x0,
-				size
-				offset
+				0x0,0x0,0x0,0x0,0x0,0x0
 				});
-		out.write(bos.toByteArray());
+		//size
+		head.write( ByteBuffer.allocate(4).putInt(img.size()).array() );
+		//offset
+		head.write( ByteBuffer.allocate(4).putInt(head.size()+4).array() );
 		
+		FileOutputStream out = new FileOutputStream(file);
+		out.write(head.toByteArray());
+		out.write(img.toByteArray());
 		out.flush();
 		out.close();
 	}
@@ -106,8 +109,8 @@ public class ImageHelper {
 	}
 
 	public static Image resizeImage(BufferedImage source, int width,
-			int height, boolean maintainAspectRation) throws IOException {
-		if (maintainAspectRation) {
+			int height, boolean maintainAspectRatio) throws IOException {
+		if (maintainAspectRatio) {
 			Dimension bounds = getImageBoundedSizeMaintainingAspectRatio(
 					source, width, height);
 			width = bounds.width;

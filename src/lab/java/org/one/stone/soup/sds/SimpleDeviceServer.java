@@ -33,6 +33,7 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 	private String address="localhost";
 	private String pageFile;
 	private Map<String,Object> services;
+	private Authenticator authenticator;
 	
 	public static void main(String[] args) {
 		new SimpleDeviceServer(args);
@@ -247,6 +248,11 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 		public Object newInstance();
 	}
 	
+	public interface Authenticator {
+		public boolean canAccess(EntityTree header,Socket socket);
+		public String whoIs(EntityTree header);
+	}
+	
 	private Object callServiceMethod(String serviceName,String serviceMethod,String[] serviceValues, EntityTree header,Socket socket) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		
 		Object service = services.get(serviceName);
@@ -346,5 +352,16 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 	
 	public String getAddress() {
 		return address;
+	}
+	
+	public Authenticator getAuthenticator() {
+		return authenticator;
+	}
+	
+	public void setAuthenticator(Authenticator authenticator) throws Exception {
+		if(authenticator != null) {
+			throw new Exception("Authenticator already set.");
+		}
+		this.authenticator = authenticator;
 	}
 }
