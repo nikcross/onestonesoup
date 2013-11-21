@@ -9,8 +9,12 @@ devDrive = new Drive("src/lab/js/drive/Development","devDriveService");
 js.mount("mq","org.one.stone.soup.core.container.TransientMessageQueue");
 mq.postMessage("mq started");
 
+<<<<<<< HEAD
 //webApp = new WebApp("bootLoader",OS.getLocalAddress(),9000,"src/lab/resources/sdsbuilder/boot-loader.html");
 //webApp = new WebApp("bootLoader","localhost",9000,"src/lab/resources/sdsbuilder/boot-loader.html");
+=======
+webApp = new WebApp("bootLoader",OS.getLocalAddress(),9000,"src/lab/js/sds/boot-loader.html");
+>>>>>>> refs/remotes/origin/master
 
 webApp.createUserService(
 		"testService1",function() {

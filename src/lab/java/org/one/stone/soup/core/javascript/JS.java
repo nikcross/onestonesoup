@@ -75,6 +75,10 @@ public class JS extends CommandLineTool implements Runnable{
 			}
 			return null;
 		}
+		
+		public void exit() {
+			System.exit(0);
+		}
 	}
 	
 	@Override
