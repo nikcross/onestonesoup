@@ -1,10 +1,16 @@
-js.runScript("src/lab/js/library/WebServer.js");
 js.runScript("src/lab/js/library/OS.js");
+
+js.runScript("src/lab/js/library/WebApp.js");
+webApp = new WebApp("bootLoader",OS.getLocalAddress(),9000,"src/lab/resources/sdsbuilder/boot-loader.html");
+
+js.runScript("src/lab/js/library/Drive.js");
+devDrive = new Drive("src/lab/js/drive/Development","devDriveService");
 
 js.mount("mq","org.one.stone.soup.core.container.TransientMessageQueue");
 mq.postMessage("mq started");
 
-webApp = new WebApp("bootLoader",OS.getLocalAddress(),9000,"src/lab/resources/sds/boot-loader.html");
+//webApp = new WebApp("bootLoader",OS.getLocalAddress(),9000,"src/lab/resources/sdsbuilder/boot-loader.html");
+//webApp = new WebApp("bootLoader","localhost",9000,"src/lab/resources/sdsbuilder/boot-loader.html");
 
 webApp.createUserService(
 		"testService1",function() {
@@ -35,10 +41,12 @@ webApp.createGlobalService(
 );
 
 webApp.createGlobalService(
-		"mq",function() {
-			this.sendMessage = function() {
-				count++;
-				return "Magic1 321321"+count;
+		"mqS",function() {
+			this.sendMessage = function(message) {
+				mq.postMessage(message);
+			}
+			this.getMessages = function(time) {
+				return mq.getMessagesSince(time);
 			}
 		}
 );

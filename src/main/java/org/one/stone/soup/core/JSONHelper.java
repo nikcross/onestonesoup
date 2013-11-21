@@ -23,13 +23,30 @@ public class JSONHelper {
 		if(instance==null)
 		{
 			instance = new NullPointerException();
+		}else if(instance instanceof List) {
+			Object[] list = ((List) instance).toArray();
+ 			
+			if(list.length>0 && list[0] instanceof String) {
+				String[] strings = new String[list.length];
+				for(int i=0;i<list.length;i++) {
+					strings[i] = (String)list[i];
+				}
+				instance = strings;
+			} else {
+				instance = list;
+			}
 		}
 		
 		StringBuffer buffer = new StringBuffer("{");
 
 		@SuppressWarnings("rawtypes")
 		Class clazz = instance.getClass();
-		tryToAppendValue(buffer,instance);
+		
+		StringBuffer value = new StringBuffer();
+		if( tryToAppendValue(value,instance)==true ) {
+			buffer.append("value: ");
+			buffer.append(value);
+		}
 
 		List<Method> getters = getGetters(clazz,true);
 
@@ -127,7 +144,7 @@ public class JSONHelper {
 			for(int loopA=0;loopA<count;loopA++)
 			{
 				Object item = Array.get(instance,loopA);
-				if(count>0) {
+				if(loopA>0) {
 					buffer.append(",");
 				}
 				buffer.append(toJSON(item));

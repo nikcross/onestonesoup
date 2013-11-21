@@ -2,6 +2,8 @@ package org.one.stone.soup.sds.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.one.stone.soup.core.FileHelper;
 
@@ -47,6 +49,28 @@ public class TextFileService implements SDSService {
 	
 	public boolean delete(String fileName) {
 		return getFile(fileName).delete();
+	}
+	
+	public List<String> listFiles(String directory) {
+		List<String> files = new ArrayList<String>();
+		for(File file: getFile(directory).listFiles()) {
+			if(file.isDirectory()) {
+				continue;
+			}
+			files.add(directory+"/"+file.getName());
+		}
+		return files;
+	}
+	
+	public List<String> listDirectories(String directory) {
+		List<String> files = new ArrayList<String>();
+		for(File file: getFile(directory).listFiles()) {
+			if(file.isDirectory()==false) {
+				continue;
+			}
+			files.add(directory+"/"+file.getName());
+		}
+		return files;		
 	}
 	
 	private File getFile(String fileName) {

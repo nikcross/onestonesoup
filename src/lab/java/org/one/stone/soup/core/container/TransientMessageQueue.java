@@ -95,10 +95,14 @@ public class TransientMessageQueue {
 				entry.toDelete=true;
 			}
 		}
+		List<QueueEntry> deleteList = new ArrayList<QueueEntry>();
 		for(QueueEntry entry: entries) {
 			if(entry.toDelete==true) {
-				entries.remove(entry);
+				deleteList.add(entry);
 			}
+		}
+		for(QueueEntry entry: deleteList) {
+			entries.remove(entry);
 		}
 	}
 }

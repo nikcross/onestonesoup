@@ -1,12 +1,12 @@
-OS = {
-	openWebApp: function(webApp) {
-		js.mount("system","org.one.stone.soup.core.process.ProcessWatch");
+OS = new function(){
+	js.mount("system","org.one.stone.soup.core.process.ProcessWatch");
+	this.openWebApp = function(webApp) {
 		system.execute("cmd.exe /c start http://"+webApp.getAddress()+":"+webApp.getPort());
-	},
-	getLocalAddress: function() {
+	}
+	this.getLocalAddress = function() {
 		return java.net.InetAddress.getLocalHost().getHostAddress();
 	}
-	getRoots: function() {
+	this.getRoots = function() {
 		roots = java.io.FileSystem.getFileSystem().listRoots();
 		//TODO
 	}

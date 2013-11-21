@@ -1,8 +1,34 @@
 <html>
 <script>
 &script;
+
+OpenForum.init = function() {
+	OpenForum.addCard("home","cardSpace","service?action=devDriveService.load&values=Home/app.html","service?action=devDrive.load&values=Home/app.js");
+	OpenForum.addCard("testCard","cardSpace","service?action=testDriveService.load&values=testCard.html","service?action=devDriveService.load&values=testCard.js");
+	OpenForum.addCard("userAdministration","cardSpace","service?action=devDriveService.load&values=UserAdministration/app.html","service?action=devDriveService.load&values=UserAdministration/app.js");
+	OpenForum.addCard("editor","cardSpace","service?action=devDriveService.load&values=Editor/app.html","service?action=devDriveService.load&values=Editor/app.js");
+	OpenForum.addCard("chat","cardSpace","service?action=devDriveService.load&values=Chat/app.html","service?action=devDriveService.load&values=Chat/app.js");
+}
+
 </script>
+<style>
+.tab {
+	border: solid 2px;
+}
+.tabSelected {
+	border: solid 2px;
+	background-color: red;
+}
+</style>
 <body>
 <h1>SDS 00.1 A</h1>
+
+<div id="cardSpace"></div>
+<ul><li><a href="#home">Home</a></li></ul>
+<ul><li><a href="#testCard">Test</a></li></ul>
+<ul><li><a href="#userAdministration">User Administration</a></li></ul>
+<ul><li><a href="#editor">Editor</a></li></ul>
+<ul><li><a href="#chat">Chat</a></li></ul>
+
 </body>
 </html>

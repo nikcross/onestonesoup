@@ -11,8 +11,12 @@ public class KeyValuePair {
 	public static KeyValuePair parseKeyAndValue(String data,String separator) {
 		String[] parts = data.split(separator);
 		String key = parts[0];
-		String value = parts[1];
-		
+		String value = null;
+		if(parts.length==1) {
+			value="";
+		} else {
+			value = parts[1];
+		}
 		return new KeyValuePair(key, value);
 	}
 	

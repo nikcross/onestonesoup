@@ -122,6 +122,9 @@ public class DirectorySynchronizer extends DirectoryCrawler implements Runnable{
 		boolean hasChanges = false;
 		
 		for(File file: directory.listFiles()) {
+			if(file.isDirectory()) {
+				continue;
+			}
 			LogEntry logEntry = log.get( getGenericName(file) );
 			if(logEntry==null) { // New file
 				//sync file for A and B
@@ -218,6 +221,7 @@ public class DirectorySynchronizer extends DirectoryCrawler implements Runnable{
 		
 		if(file.lastModified()>otherFile.lastModified()) {
 			try {
+				otherFile.getParentFile().mkdirs();
 				FileHelper.copyFileToFile(file, otherFile);
 				otherFile.setLastModified(file.lastModified());
 				bestFile = file;
@@ -226,6 +230,7 @@ public class DirectorySynchronizer extends DirectoryCrawler implements Runnable{
 			}
 		} else {
 			try {
+				file.getParentFile().mkdirs();
 				FileHelper.copyFileToFile(otherFile,file);
 				file.setLastModified(otherFile.lastModified());
 				bestFile = otherFile;

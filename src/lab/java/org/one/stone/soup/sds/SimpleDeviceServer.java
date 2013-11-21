@@ -1,9 +1,8 @@
 package org.one.stone.soup.sds;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
@@ -22,6 +21,7 @@ import org.one.stone.soup.core.data.KeyValuePair;
 import org.one.stone.soup.process.CommandLineTool;
 
 import sun.org.mozilla.javascript.internal.NativeObject;
+import sun.org.mozilla.javascript.internal.NativeJavaObject;
 import sun.org.mozilla.javascript.internal.Scriptable;
 
 
@@ -33,6 +33,25 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 	private String address="localhost";
 	private String pageFile;
 	private Map<String,Object> services;
+	
+	private class ServerThread implements Runnable {
+		
+		private Socket socket;
+		
+		public void process(Socket socket) {
+			this.socket = socket;
+			new Thread(this,"SDS Server Thread").start();
+		}
+		
+		public void run() {
+			
+			try {
+				processSocket(socket);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 	
 	public static void main(String[] args) {
 		new SimpleDeviceServer(args);
@@ -102,20 +121,7 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 			
 			try {
 				Socket socket = serverSocket.accept();
-				EntityTree header = parseHeader(socket);
-				if(header==null) {
-					continue;
-				}
-				if(header.getAttribute("resource").equals("/")) {
-					sendPage(header,socket);
-				} else if(header.getAttribute("resource").startsWith("/service?")) {
-					processRequest(header,socket);
-				} else if(header.getAttribute("resource").startsWith("/favicon.ico")) {
-					sendIcon(header,socket);
-				} else {
-					send404(header,socket);
-				}
-				socket.close();
+				new ServerThread().process(socket);
 				
 			} catch (Throwable e) {
 				e.printStackTrace();
@@ -123,12 +129,30 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 		}
 	}
 
+	private void processSocket(Socket socket) throws IOException {
+		EntityTree header = parseHeader(socket);
+		if(header==null) {
+			return;
+		}
+		if(header.getAttribute("resource").equals("/")) {
+			sendPage(header,socket);
+		} else if(header.getAttribute("resource").startsWith("/service?")) {
+			processRequest(header,socket);
+		} else if(header.getAttribute("resource").startsWith("/favicon.ico")) {
+			sendIcon(header,socket);
+		} else {
+			send404(header,socket);
+		}
+		socket.close();
+	}
+	
 	private EntityTree parseHeader(Socket socket) throws IOException {
-		BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		//BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()),1);
+		InputStream iStream = socket.getInputStream();
 		EntityTree header = new EntityTree("http-header");
 		
-		String line = reader.readLine();
-		if(line==null) {
+		String line = readLine(iStream);
+		if(line==null || line.length()==0) {
 			socket.close();
 			return null;
 		}
@@ -137,26 +161,39 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 		header.setAttribute("resource",parts[1].trim());
 		header.setAttribute("version",parts[2].trim().toLowerCase());
 		
-		line = reader.readLine();
+		line = readLine(iStream);
 		while(line!=null && line.length()!=0){
 			KeyValuePair kvp = KeyValuePair.parseKeyAndValue(line, ":");
 			header.addChild( kvp.getKey() ).setValue( kvp.getValue() );
 			
-			line = reader.readLine();
+			line = readLine(iStream);
 		}
 		
 		if(header.getAttribute("method").equals("post")) {
 			TreeEntity entity = header.addChild("post-data");
 			StringBuilder postData = new StringBuilder();
-			line = reader.readLine();
-			while(line!=null) {
+			line = readLine(iStream);
+			while(line!=null && line.length()==0) {
 				postData.append(line);
-				line = reader.readLine();
+				line = readLine(iStream);
 			}
 			entity.setValue(postData.toString());
 		}
 		
 		return header;
+	}
+	
+	private String readLine(InputStream iStream) throws IOException {
+		int in = iStream.read();
+		StringBuilder line = new StringBuilder();
+		while(in!=-1) {
+			if(((char)in)=='\n') {
+				break;
+			}
+			line.append((char)in);
+			in = iStream.read();
+		}
+		return line.toString().trim();
 	}
 	
 	private void sendPage(EntityTree header,Socket socket) throws IOException {
@@ -180,18 +217,20 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 	}
 	
 	private void sendIcon(EntityTree header,Socket socket) throws IOException {
-		File icon = new File(new File(pageFile).getParentFile().getAbsolutePath()+"favicon.ico");
+		File icon = new File(new File(pageFile).getParentFile().getAbsolutePath()+"/favicon.ico");
 		if(icon.exists()==false) {
 			send404(header, socket);
 		}
 		StringBuilder data = new StringBuilder();
 		data.append("HTTP/1.1 200 OK\n");
 		data.append("Server: Simple Sevice Server\n");
+		data.append("Connection: close\n");
 		data.append("Content-Length: "+icon.length()+"\n");
 		data.append("Content-Type: text/html\n\n");
 		
 		data.append( FileHelper.loadFileAsString(icon) );
 		FileHelper.saveStringToOutputStream( data.toString(), socket.getOutputStream() );
+		socket.close();
 	}
 	
 	private void processRequest(EntityTree header,Socket socket) {
@@ -203,8 +242,9 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 			KeyValuePair kvp = KeyValuePair.parseKeyAndValue(part);
 			parameters.addChild(kvp.getKey()).setValue(kvp.getValue());
 		}
-		String serviceName = parameters.getChild("name").getValue();
-		String serviceMethod = parameters.getChild("method").getValue();
+		String serviceName = parameters.getChild("action").getValue();
+		String serviceMethod = StringHelper.after(serviceName, ".");
+		serviceName = StringHelper.before(serviceName, ".");
 		String[] serviceValues = new String[]{};
 		if(parameters.getChild("values")!=null) {
 			serviceValues = parameters.getChild("values").getValue().split(",");
@@ -213,20 +253,25 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 		try {
 			Object response = callServiceMethod(serviceName, serviceMethod, serviceValues, header, socket);
 			String responseData = null;
+			String mimeType = null;
 			if(response instanceof String) {
 				responseData = (String) response;
+				mimeType="text/plain";
 			} else {
-				JSONHelper.toJSON(response);
+				responseData = "response: "+JSONHelper.toJSON(response);
+				mimeType="application/json";
 			}
 			
 			StringBuilder responseHeader = new StringBuilder();
 			responseHeader.append("HTTP/1.1 200 OK\n");
 			responseHeader.append("Server: Simple Sevice Server\n");
+			responseHeader.append("Connection: close\n");
 			responseHeader.append("Content-Length: "+responseData.length()+"\n");
-			responseHeader.append("Content-Type: application/json\n\n");
+			responseHeader.append("Content-Type: "+mimeType+"\n\n");
 			responseHeader.append(responseData);
 			
-			FileHelper.saveStringToOutputStream(responseData.toString(),socket.getOutputStream());
+			FileHelper.saveStringToOutputStream(responseHeader.toString(),socket.getOutputStream());
+			socket.close();
 			
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
@@ -273,14 +318,21 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 		}
 	}
 	
+	@SuppressWarnings("restriction")
 	private Object callJSServiceMethod(NativeObject service,String serviceMethod,String[] serviceValues, EntityTree header,Socket socket) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
-
+		Object response = null;
 		if(serviceValues.length==0) {
-			return NativeObject.callMethod((Scriptable)service, serviceMethod, new Object[]{});
+			response = NativeObject.callMethod((Scriptable)service, serviceMethod, new Object[]{});
 		} else if(serviceValues.length==1) {
-			return NativeObject.callMethod((Scriptable)service, serviceMethod, new Object[]{serviceValues[0]});
+			response = NativeObject.callMethod((Scriptable)service, serviceMethod, new Object[]{serviceValues[0]});
 		} else {
-			return NativeObject.callMethod((Scriptable)service, serviceMethod, serviceValues);
+			response = NativeObject.callMethod((Scriptable)service, serviceMethod, serviceValues);
+		}
+		
+		if(response instanceof NativeJavaObject) {
+			return ((NativeJavaObject)response).unwrap();
+		} else {
+			return response;
 		}
 	}
 	

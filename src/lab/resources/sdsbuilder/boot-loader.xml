@@ -4,6 +4,7 @@
 	<scripts>
 		open-forum.js
 		tree.js
+		boot-loader.js
 	</scripts>
 	<styles></styles>
 </app>
