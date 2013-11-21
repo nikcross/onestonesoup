@@ -1,4 +1,4 @@
-package org.one.stone.soup.sds.service;
+package org.one.stone.soup.javascript.helper;
 
 import java.sql.Connection;
 import java.sql.Driver;

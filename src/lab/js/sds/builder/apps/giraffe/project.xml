@@ -1,0 +1,8 @@
+<app>
+	<name>giraffe</name>
+	<page-template>app.html</page-template>
+	<scripts>
+		giraffe.js
+	</scripts>
+	<styles></styles>
+</app>

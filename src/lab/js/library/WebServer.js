@@ -1,6 +1,19 @@
-function WebApp(alias,address,port,page) {
+function WebServer(alias,address,port,page) {
+	if(typeof(alias)=="undefined") {
+		alias = ;
+	}
+	
 	js.mount(alias+"Server","org.one.stone.soup.sds.SimpleDeviceServer");
 	var server = eval(alias+"Server");
+	if(typeof(port)=="undefined") {
+		port = 1234;
+	}
+	if(typeof(address)=="undefined") {
+		address = "localhost";
+	}
+	if(typeof(page)=="undefined") {
+		page = "boot-loader.html";
+	}
 	server.setPort(port);
 	server.setAddress(address);
 	server.setPageFile(page);

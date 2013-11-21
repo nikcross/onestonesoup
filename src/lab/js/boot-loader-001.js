@@ -4,7 +4,7 @@ js.runScript("src/lab/js/library/OS.js");
 js.mount("mq","org.one.stone.soup.core.container.TransientMessageQueue");
 mq.postMessage("mq started");
 
-webApp = new WebApp("bootLoader",OS.getLocalAddress(),9000,"src/lab/resources/sds/boot-loader.html");
+webApp = new WebApp("bootLoader",OS.getLocalAddress(),9000,"src/lab/js/sds/boot-loader.html");
 
 webApp.createUserService(
 		"testService1",function() {

@@ -1,4 +1,4 @@
-package org.one.stone.soup.sds.serverbuilder;
+package org.one.stone.soup.sds.appbuilder;
 
 import java.io.File;
 import java.io.IOException;
