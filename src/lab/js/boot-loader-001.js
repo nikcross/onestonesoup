@@ -1,20 +1,19 @@
+try{
+out.println("Boot Loader Started");
+out.println("Loading Objects");
 js.runScript("src/lab/js/library/OS.js");
-
 js.runScript("src/lab/js/library/WebApp.js");
-webApp = new WebApp("bootLoader",OS.getLocalAddress(),9000,"src/lab/resources/sdsbuilder/boot-loader.html");
-
 js.runScript("src/lab/js/library/Drive.js");
-devDrive = new Drive("src/lab/js/drive/Development","devDriveService");
+
+devDrive = new Drive("src/lab/js/drive/Development");
 
 js.mount("mq","org.one.stone.soup.core.container.TransientMessageQueue");
 mq.postMessage("mq started");
 
-<<<<<<< HEAD
-//webApp = new WebApp("bootLoader",OS.getLocalAddress(),9000,"src/lab/resources/sdsbuilder/boot-loader.html");
-//webApp = new WebApp("bootLoader","localhost",9000,"src/lab/resources/sdsbuilder/boot-loader.html");
-=======
-webApp = new WebApp("bootLoader",OS.getLocalAddress(),9000,"src/lab/js/sds/boot-loader.html");
->>>>>>> refs/remotes/origin/master
+//webApp = new WebApp("bootLoader",OS.getLocalAddress(),8888,"src/lab/js/sds/boot-loader.html");
+webApp = new WebApp("bootLoader","localhost",8888,"src/lab/js/sds/boot-loader.html");
+
+devDrive.createWebService(webApp,"devDriveService");
 
 webApp.createUserService(
 		"testService1",function() {
@@ -57,4 +56,9 @@ webApp.createGlobalService(
 
 webApp.start();
 
-OS.openWebApp(webApp);
+//OS.openWebApp(webApp);
+
+} catch(e) {
+	out.println( e+" on line "+e.lineNumber );
+	js.exit();
+}

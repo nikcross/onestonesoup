@@ -1,6 +1,7 @@
 package org.one.stone.soup.sds;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -9,6 +10,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,8 +22,8 @@ import org.one.stone.soup.core.data.EntityTree.TreeEntity;
 import org.one.stone.soup.core.data.KeyValuePair;
 import org.one.stone.soup.process.CommandLineTool;
 
-import sun.org.mozilla.javascript.internal.NativeObject;
 import sun.org.mozilla.javascript.internal.NativeJavaObject;
+import sun.org.mozilla.javascript.internal.NativeObject;
 import sun.org.mozilla.javascript.internal.Scriptable;
 
 
@@ -33,7 +35,6 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 	private String address="localhost";
 	private String pageFile;
 	private Map<String,Object> services;
-<<<<<<< HEAD
 	
 	private class ServerThread implements Runnable {
 		
@@ -53,9 +54,7 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 			}
 		}
 	}
-=======
 	private Authenticator authenticator;
->>>>>>> refs/remotes/origin/master
 	
 	public static void main(String[] args) {
 		new SimpleDeviceServer(args);
@@ -134,6 +133,8 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 	}
 
 	private void processSocket(Socket socket) throws IOException {
+		
+		try{
 		EntityTree header = parseHeader(socket);
 		if(header==null) {
 			return;
@@ -142,12 +143,15 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 			sendPage(header,socket);
 		} else if(header.getAttribute("resource").startsWith("/service?")) {
 			processRequest(header,socket);
-		} else if(header.getAttribute("resource").startsWith("/favicon.ico")) {
-			sendIcon(header,socket);
+		} else if(header.getAttribute("resource").lastIndexOf(".")!=-1) {
+			sendResource(header,socket);
 		} else {
 			send404(header,socket);
 		}
 		socket.close();
+		} catch (Throwable t) {
+			send500(socket,t);
+		}
 	}
 	
 	private EntityTree parseHeader(Socket socket) throws IOException {
@@ -216,24 +220,50 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 		data.append("HTTP/1.1 404 Not Found\n");
 		data.append("Server: Simple Sevice Server\n\n");
 		
-		data.append( FileHelper.loadFileAsString(pageFile) );
+		data.append( "File not found." );
 		FileHelper.saveStringToOutputStream( data.toString(), socket.getOutputStream() );
 	}
 	
-	private void sendIcon(EntityTree header,Socket socket) throws IOException {
-		File icon = new File(new File(pageFile).getParentFile().getAbsolutePath()+"/favicon.ico");
-		if(icon.exists()==false) {
+	private void send500(Socket socket,Throwable t) throws IOException {
+		StringBuilder data = new StringBuilder();
+		data.append("HTTP/1.1 500 Server Error\n");
+		data.append("Server: Simple Sevice Server\n\n");
+		
+		data.append( "Server Error "+t.getMessage() );
+		FileHelper.saveStringToOutputStream( data.toString(), socket.getOutputStream() );
+	}
+	
+	private void sendResource(EntityTree header,Socket socket) throws IOException {
+		String request = header.getAttribute("resource");
+		File root = new File(pageFile).getParentFile();
+		File resource = new File(root.getAbsolutePath()+"/"+request);
+		if(resource.exists()==false) {
 			send404(header, socket);
 		}
+		String mimeType = Files.probeContentType(resource.toPath());
+		
 		StringBuilder data = new StringBuilder();
 		data.append("HTTP/1.1 200 OK\n");
 		data.append("Server: Simple Sevice Server\n");
 		data.append("Connection: close\n");
-		data.append("Content-Length: "+icon.length()+"\n");
-		data.append("Content-Type: text/html\n\n");
+		data.append("Content-Length: "+resource.length()+"\n");
+		data.append("Content-Type: "+mimeType+"\n\n");
 		
-		data.append( FileHelper.loadFileAsString(icon) );
-		FileHelper.saveStringToOutputStream( data.toString(), socket.getOutputStream() );
+		socket.getOutputStream().write(data.toString().getBytes());;
+		
+		//copy file to out
+		FileInputStream in = new FileInputStream( resource );
+		
+		try{
+			byte[] buffer = new byte[1024];
+			int len;
+			while ((len = in.read(buffer)) != -1) {
+				socket.getOutputStream().write(buffer, 0, len);
+			}
+		} finally {
+			in.close();
+		}
+		
 		socket.close();
 	}
 	
