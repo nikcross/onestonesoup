@@ -207,4 +207,7 @@ public class EntityTree {
 		return root;
 	}
 	
+	public String toString() {
+		return XmlHelper.toXml(this);
+	}
 }
