@@ -4,11 +4,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URLDecoder;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.util.HashMap;
@@ -178,14 +180,22 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 		}
 		
 		if(header.getAttribute("method").equals("post")) {
+			int length = Integer.parseInt(header.getChild("Content-Length").getValue().trim());
 			TreeEntity entity = header.addChild("post-data");
-			StringBuilder postData = new StringBuilder();
-			line = readLine(iStream);
-			while(line!=null && line.length()==0) {
-				postData.append(line);
-				line = readLine(iStream);
+			
+			int in = iStream.read();
+			int index = 0;
+			byte[] raw = new byte[length];
+			while(in!=-1 && index<length)
+			{
+				raw[index]=(byte)in;
+				index++;
+				if(index==length) {
+					break;
+				}
+				in = iStream.read();
 			}
-			entity.setValue(postData.toString());
+			entity.setValue( new String(raw) );
 		}
 		
 		return header;
@@ -231,6 +241,7 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 		
 		data.append( "Server Error "+t.getMessage() );
 		FileHelper.saveStringToOutputStream( data.toString(), socket.getOutputStream() );
+		t.printStackTrace();
 	}
 	
 	private void sendResource(EntityTree header,Socket socket) throws IOException {
@@ -241,6 +252,11 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 			send404(header, socket);
 		}
 		String mimeType = Files.probeContentType(resource.toPath());
+		if(mimeType==null) {
+			if(resource.getName().indexOf(".")!=-1 && resource.getName().substring(resource.getName().lastIndexOf(".")+1).toLowerCase().equals("js")) {
+				mimeType="application/javascript";
+			}
+		}
 		
 		StringBuilder data = new StringBuilder();
 		data.append("HTTP/1.1 200 OK\n");
@@ -270,12 +286,29 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 	private void processRequest(EntityTree header,Socket socket) {
 		String request = header.getAttribute("resource");
 		request = StringHelper.after(request,"/service?");
+		
 		String[] parts = request.split("&");
 		TreeEntity parameters = header.addChild("parameters");
 		for(String part: parts) {
 			KeyValuePair kvp = KeyValuePair.parseKeyAndValue(part);
 			parameters.addChild(kvp.getKey()).setValue(kvp.getValue());
 		}
+		
+		String method = header.getAttribute("method").toLowerCase();
+		if(method.equals("post")) {
+			String postData = header.getChild("post-data").getValue();
+			String[] postParameters = postData.split("&");
+			for(String parameter: postParameters) {
+				parts = parameter.split("=");
+				try {
+					parameters.addChild(parts[0]).setValue( URLDecoder.decode(parts[1],"UTF-8") );
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+					parameters.addChild(parts[0]).setValue(parts[1]);
+				}
+			}
+		}
+		
 		String serviceName = parameters.getChild("action").getValue();
 		String serviceMethod = StringHelper.after(serviceName, ".");
 		serviceName = StringHelper.before(serviceName, ".");
@@ -283,6 +316,16 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 		if(parameters.getChild("values")!=null) {
 			serviceValues = parameters.getChild("values").getValue().split(",");
 		}
+		String[] newValues = new String[serviceValues.length];
+		for(int i=0;i<serviceValues.length;i++) {
+			String value = serviceValues[i];
+			if(value.startsWith("$")) {
+				newValues[i] = parameters.getChild(value.substring(1)).getValue();
+			} else {
+				newValues[i] = value;
+			}
+		}
+		serviceValues = newValues;
 		
 		try {
 			Object response = callServiceMethod(serviceName, serviceMethod, serviceValues, header, socket);

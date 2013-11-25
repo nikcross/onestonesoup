@@ -6,6 +6,8 @@ js.runScript("src/lab/js/library/WebApp.js");
 js.runScript("src/lab/js/library/Drive.js");
 
 devDrive = new Drive("src/lab/js/drive/Development");
+testDrive = new Drive("src/lab/js/drive/Test");
+drawDrive = new Drive("src/lab/js/drive/Draw/user");
 
 js.mount("mq","org.one.stone.soup.core.container.TransientMessageQueue");
 mq.postMessage("mq started");
@@ -14,6 +16,8 @@ mq.postMessage("mq started");
 webApp = new WebApp("bootLoader","localhost",8888,"src/lab/js/sds/boot-loader.html");
 
 devDrive.createWebService(webApp,"devDriveService");
+testDrive.createWebService(webApp,"testDriveService");
+drawDrive.createWebService(webApp,"drawDriveService");
 
 webApp.createUserService(
 		"testService1",function() {

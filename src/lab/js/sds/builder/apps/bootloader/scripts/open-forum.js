@@ -15,7 +15,7 @@
 			return root;
 		}
 
-		self.addapp = function(hash,target,htmlUri,scriptUri) {
+		self.addApp = function(hash,target,htmlUri,scriptUri) {
 			apps[hash] = {target: target,htmlUri: htmlUri,scriptUri: scriptUri};
 		}
 

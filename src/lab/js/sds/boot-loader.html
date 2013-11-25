@@ -1,12 +1,78 @@
 <html>
 <link rel="icon" type="image/png" href="/images/js-icon.png" />
+<style>
+
+html, body, .mainBox {
+	margin: 0;
+	width: 100%;
+	height: 100%;
+    overflow: hidden;
+    background: black;
+}
+body {
+	font-family: Helvetica;
+	font-size: 10px;
+	padding: 0px;
+    overflow: hidden;
+    background: black;
+}
+.mainBox {
+	border: solid 1px;
+}
+.toolBar {
+	height: 20px;
+	width: 100%;
+	margin: 0px;
+	padding: 0px;
+	background: black;
+	color: white;
+}
+.tabBar {
+	height: 10px;
+	background: black;
+	color: white;
+}
+.statusBar {
+	height: 10px;
+	width: 25%;
+    background: black;
+    color: white;
+}
+.treeBox {
+	border: solid 1px;
+}
+.editBox {
+	border: solid 1px;
+}
+.appBox {
+	border: solid 1px;
+    background: white;
+    color: black;
+}
+.tab {
+	min-width: 150px;
+	background: blue;
+	color: white;
+	font-family: Arial;
+	padding: 3px;
+	margin-bottom: 1px;
+	border: solid 1px black;
+	-moz-border-bottom-right-radius: 10px;
+	border-bottom-right-radius: 10px;
+	text-decoration:none;
+}
+.selected {
+	background: cyan;
+	color: black;
+}
+</style>
 <script>
     var OpenForum = new function(){
 		var self = this;
 		var objects= [];
 		var tables = [];
 		var tabs = [];
-		var cards = [];
+		var apps = [];
 		var nextId = 0;
 		var hash;
 
@@ -18,8 +84,8 @@
 			return root;
 		}
 
-		self.addCard = function(hash,target,htmlUri,scriptUri) {
-			cards[hash] = {target: target,htmlUri: htmlUri,scriptUri: scriptUri};
+		self.addApp = function(hash,target,htmlUri,scriptUri) {
+			apps[hash] = {target: target,htmlUri: htmlUri,scriptUri: scriptUri};
 		}
 
 		self.addTable = function(table) {
@@ -159,10 +225,10 @@
 			if(hash=="") {
 				hash="home";
 			}
-			if(cards[hash]) {
-				var source = Ajax.doGet(cards[hash].htmlUri);
-				self.loadScript(cards[hash].scriptUri);
-				document.getElementById(cards[hash].target).innerHTML = source;
+			if(apps[hash]) {
+				var source = Ajax.doGet(apps[hash].htmlUri);
+				self.loadScript(apps[hash].scriptUri);
+				document.getElementById(apps[hash].target).innerHTML = source;
 				self.crawl(document.body);
 			}
 			self.onHash(hash);
@@ -316,7 +382,7 @@
 			return request;
 		}
 
-       JSON.post = function( post,action,parameters ) {
+       JSON.post = function( page,action,parameters ) {
           var request = {method: 'POST',page: page,action: action,parameters: parameters, onSuccess: JSON.onSuccess, onError: JSON.onError, go: JSON.go};
 			return request;
 		}
@@ -893,8 +959,26 @@ function TreeNode(name,attributes) {
 
     }
 }
+
+OpenForum.init = function() {
+	OpenForum.addApp("chat","appPanel","/apps/Chat/app.html","/apps/Chat/app.js"); 
+	OpenForum.addApp("editor","appPanel","/apps/Editor/app.html","/apps/Editor/app.js"); 
+	OpenForum.addApp("draw","appPanel","/apps/Draw/app.html","/apps/Draw/app.js"); 
+	
+	tabs = [
+	        {name: "Chat", anchor: "chat"},
+	        {name: "Editor", anchor: "editor"},
+	        {name: "Draw", anchor: "draw"}
+	        ];
+}
 </script>
 <body>
-<h1>SDS 00.1 A</h1>
+<table class="mainBox">
+ <tr><td colspan="2" class="toolBar">SDS 00.1 Alpha</td></tr>
+ <tr><td colspan="2" id="appPanel" class="appBox"></td></tr>
+ <tr>
+ <td id="status" class="statusBar"></td>
+ <td class="tabBar"><a of-repeatFor="tab in tabs" href="#{{tab.anchor}}" class="tab">{{tab.name}}</a></td></tr>
+</table>
+<div id="popup" class="popup"></div>
 </body>
-</html>

@@ -18,8 +18,22 @@ function Drive(newRoot) {
 					this.save = function(data,fileName) {
 						return tfs.save(decodeURIComponent(fileName),decodeURIComponent(data));
 					}
+					this.listDirectories = function(directoryName) {
+						return tfs.listDirectories(decodeURIComponent(directoryName));
+					}
+					this.listFiles = function(directoryName) {
+						return tfs.listFiles(decodeURIComponent(directoryName));
+					}
 				}	
 			);
+	}
+	
+	this.listDirectories = function(directory) {
+		return tfs.listDirectories(directory);
+	}
+	
+	this.listFiles = function(directory) {
+		return tfs.listFiles(directory);
 	}
 	
 	this.load = function(fileName) {
