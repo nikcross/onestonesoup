@@ -3,7 +3,7 @@ var driveIndex = 0;
 function Drive(newRoot) {
 	var index = driveIndex;
 	driveIndex++;
-	var tfs = js.mount("drive"+index,"org.one.stone.soup.javascript.helper.TextFileService");
+	var tfs = js.mount("drive"+index,"org.one.stone.soup.javascript.helper.TextDrive");
 	tfs.setRoot(newRoot);
 	var serviceName = null;
 	var root = newRoot;

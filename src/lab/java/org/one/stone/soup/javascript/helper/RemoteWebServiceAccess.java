@@ -31,7 +31,7 @@ public class RemoteWebServiceAccess {
 		FileHelper.copyInputStreamToFile(c.getInputStream(),new File(fileName));
 	}
 	
-	public static void getURLAsString(String url,String user,String password,String fileName) throws IOException {
+	public static void getURLAsFile(String url,String user,String password,String fileName) throws IOException {
 		@SuppressWarnings("restriction")
 		String code = new sun.misc.BASE64Encoder().encode((user+":"+password).getBytes());
 		
