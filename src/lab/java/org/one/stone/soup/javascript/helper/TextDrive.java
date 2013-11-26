@@ -8,7 +8,7 @@ import java.util.List;
 import org.one.stone.soup.core.FileHelper;
 import org.one.stone.soup.sds.SDSService;
 
-public class TextFileService implements FileReadInterface, FileWriteInterface {
+public class TextDrive implements FileReadInterface, FileWriteInterface {
 
 	private String root = null;
 	/* (non-Javadoc)

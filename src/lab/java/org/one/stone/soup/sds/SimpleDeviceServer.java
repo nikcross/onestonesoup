@@ -48,7 +48,7 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 		public void run() {
 			
 			try {
-				processSocket(socket);
+				routeRequest(socket);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -132,7 +132,7 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 		}
 	}
 
-	private void processSocket(Socket socket) throws IOException {
+	private void routeRequest(Socket socket) throws IOException {
 		
 		try{
 		EntityTree header = parseHeader(socket);
@@ -142,7 +142,7 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 		if(header.getAttribute("resource").equals("/")) {
 			sendPage(header,socket);
 		} else if(header.getAttribute("resource").startsWith("/service?")) {
-			processRequest(header,socket);
+			processServiceRequest(header,socket);
 		} else if(header.getAttribute("resource").lastIndexOf(".")!=-1) {
 			sendResource(header,socket);
 		} else {
@@ -267,7 +267,7 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 		socket.close();
 	}
 	
-	private void processRequest(EntityTree header,Socket socket) {
+	private void processServiceRequest(EntityTree header,Socket socket) {
 		String request = header.getAttribute("resource");
 		request = StringHelper.after(request,"/service?");
 		String[] parts = request.split("&");

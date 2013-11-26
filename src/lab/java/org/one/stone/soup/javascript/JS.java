@@ -1,13 +1,19 @@
-package org.one.stone.soup.core.javascript;
+package org.one.stone.soup.javascript;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.script.ScriptException;
 
 import org.one.stone.soup.core.FileHelper;
+import org.one.stone.soup.core.javascript.JavascriptEngine;
 import org.one.stone.soup.process.CommandLineTool;
 
 public class JS extends CommandLineTool implements Runnable{
@@ -36,10 +42,26 @@ public class JS extends CommandLineTool implements Runnable{
 	}
 
 	private JavascriptEngine jsEngine;
+	private JSInstance js;
 	private Thread thread;
-	private BufferedReader reader;
+	private static Map<String,URLClassLoader> classLoaders = new HashMap<String,URLClassLoader>();
 	
-	public class JSEngine {
+	public class JSInstance {
+		public Object mountJar(String alias,String jarFile,String className) throws MalformedURLException, ClassNotFoundException {
+			File jar = new File(jarFile);
+			URL jarURL = jar.toURI().toURL();
+			
+			URLClassLoader classLoader = new URLClassLoader( new URL[]{jarURL} );
+			classLoaders.put(alias,classLoader);
+			
+			if(className==null) {
+				return null;
+			} else {
+				classLoader.loadClass(className);
+				return mount(alias,className);
+			}
+		}
+		
 		public Object mount(String alias,String className) {
 			Object obj;
 			try {
@@ -76,15 +98,45 @@ public class JS extends CommandLineTool implements Runnable{
 			return null;
 		}
 		
+		public void runAsync(String command) {
+			new JSThread(command,null,this);
+		}
+		
+		public void runScriptAsync(String fileName) throws IOException {
+			String command = FileHelper.loadFileAsString(fileName);
+			new JSThread(command,fileName,this);
+		}
+		
+		public void sleep(long milliSeconds) throws InterruptedException {
+			Thread.sleep(milliSeconds);
+		}
+		
 		public void exit() {
 			System.exit(0);
+		}
+	}
+	
+	private class JSThread implements Runnable{
+		JSInstance jsEngine;
+		private String code;
+		private String fileName;
+		
+		private JSThread(String code,String fileName,JSInstance jsEngine) {
+			this.code = code;
+			this.fileName = fileName;
+			this.jsEngine = jsEngine;
+			new Thread(this,"JS Thread").start();
+		}
+		public void run() {
+			jsEngine.run(code);
 		}
 	}
 	
 	@Override
 	public void process() {
 		jsEngine = new JavascriptEngine();
-		jsEngine.mount("js",new JSEngine());
+		js = new JSInstance();
+		jsEngine.mount("js",js);
 		jsEngine.mount("out",System.out);
 		jsEngine.mount("err",System.err);
 		
@@ -99,8 +151,10 @@ public class JS extends CommandLineTool implements Runnable{
 			}
 		}
 		
-		thread = new Thread(this,"Javascript Engine");
-		thread.start();
+		if(hasOption("noPrompt")==false) {
+			thread = new Thread(this,"Javascript Engine");
+			thread.start();
+		}
 	}
 	
 	public void run() {
@@ -109,15 +163,41 @@ public class JS extends CommandLineTool implements Runnable{
 		try {
 			System.out.print("JS> ");
 			String line = reader.readLine();
+			StringBuffer code = new StringBuffer();
+			boolean bufferMode=false;
 			
 			while(line != null) {
 				try {
-					jsEngine.runScript(line,"User Input");
+					if(bufferMode==false) {
+						if(line.equals("{{")) {
+							bufferMode=true;
+						} else {
+							jsEngine.runScript(line,"User Input");
+						}
+					} else {
+						if(line.equals("}}")) {
+							jsEngine.runScript(code.toString(),"User Input");
+							code=new StringBuffer();
+							bufferMode=false;
+						} else if(line.equals("}}+")) {
+							js.runAsync(code.toString());
+							code=new StringBuffer();
+							bufferMode=false;
+						} else {
+							code.append("\n"+line);
+						}
+					}
 				} catch (ScriptException e) {
 					System.err.println(e.getMessage());
+					code=new StringBuffer();
+					bufferMode=false;
 				}
 				
-				System.out.print("JS> ");
+				if(bufferMode) {
+					System.out.print("JS+ ");
+				} else {
+					System.out.print("JS> ");
+				}
 				line = reader.readLine();
 			}
 			
