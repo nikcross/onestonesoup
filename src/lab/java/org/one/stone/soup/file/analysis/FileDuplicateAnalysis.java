@@ -6,12 +6,12 @@ import java.util.Map;
 
 import org.one.stone.soup.core.FileHelper;
 import org.one.stone.soup.process.CommandLineTool;
-import org.one.stone.soup.process.LogFile;
+import org.one.stone.soup.process.SimpleLogFile;
 
 public class FileDuplicateAnalysis extends CommandLineTool {
 
 	private Map<String,File> map;
-	private LogFile logFile;
+	private SimpleLogFile logFile;
 	private long bytesRead;
 	private long duplicateBytesRead;
 	private long directoriesProcessed;
@@ -51,7 +51,7 @@ public class FileDuplicateAnalysis extends CommandLineTool {
 		
 		map = new HashMap<String,File>();
 		File root = new File( getParameter(0) );
-		logFile = new LogFile( getParameter(1) );
+		logFile = new SimpleLogFile( getParameter(1) );
 		processDirectory(root);
 		
 		logFile.logMessage("Processed "+filesProcessed+" files in "+directoriesProcessed+" directories. Duplicates found: "+duplicateFilesRead+". "+bytesRead+" bytes read of which "+duplicateBytesRead+" was duplicate data.");

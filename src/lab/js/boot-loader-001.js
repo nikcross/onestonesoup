@@ -14,6 +14,8 @@ mq.postMessage("mq started");
 
 //webApp = new WebApp("bootLoader",OS.getLocalAddress(),8888,"src/lab/js/sds/boot-loader.html");
 webApp = new WebApp("bootLoader","localhost",8888,"src/lab/js/sds/boot-loader.html");
+adminDrive = new Drive("src/lab/js/drive/Test/Admin");
+webApp.setAuthentication(adminDrive,"users.json");
 
 devDrive.createWebService(webApp,"devDriveService");
 testDrive.createWebService(webApp,"testDriveService");

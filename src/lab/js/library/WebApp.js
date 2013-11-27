@@ -47,4 +47,42 @@ function WebApp(alias,address,port,page) {
 		
 		return serviceFactory;
 	}
+	
+	this.setAuthentication = function(drive,file) {
+		var users = eval(drive.load(file));
+		var authenticatorFn = {
+			usersDrive: drive,
+			usersFile: file,
+			users: users,
+			canAccess: function(header,socket) {
+				if(header.getChild("Authorization")==null) {
+					return false;
+				}
+				var part = org.one.stone.soup.core.StringHelper.decodeBase64( header.getChild("Authorization").getValue().substring(7) ).split(":");
+				var userName = part[0];
+				var password = part[1];
+				
+				var user = users["guest"];
+				if( typeof(user)!="undefined" ) {
+					if(user.password==password) {
+						return true;
+					} else {
+						return false;
+					}
+				} else {
+					return false;
+				}
+			},
+			whoIs: function(header) {
+				if(header.getChild("Authorization")==null) {
+					return null;
+				}
+				var part = org.one.stone.soup.core.StringHelper.decodeBase64( header.getChild("Authorization").getValue() ).split(":");
+				return part[0];
+			}
+		}
+		
+		var authenticator = new org.one.stone.soup.sds.SimpleDeviceServer.Authenticator(authenticatorFn);
+		server.setAuthenticator(authenticator);
+	}
 }

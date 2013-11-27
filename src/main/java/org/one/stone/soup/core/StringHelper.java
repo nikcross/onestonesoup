@@ -1,5 +1,7 @@
 package org.one.stone.soup.core;
 
+import java.io.IOException;
+
 public class StringHelper {
 
 	public static String padLeftToFitSize(String data,char pad,int size) {
@@ -42,5 +44,15 @@ public class StringHelper {
 	}
 	public static String between(String data, String start,String end) {
 		return before(after(data,start),end);
+	}
+	@SuppressWarnings("restriction")
+	public static String decodeBase64(String data) throws IOException {
+		return new String(
+				new sun.misc.BASE64Decoder().decodeBufferToByteBuffer(data).array()
+			);
+	}
+	@SuppressWarnings("restriction")
+	public static String encodeBase64(String data) throws IOException {
+		return new sun.misc.BASE64Encoder().encode(data.getBytes());
 	}
 }

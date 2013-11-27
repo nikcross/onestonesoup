@@ -6,6 +6,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import org.one.stone.soup.core.FileHelper;
+import org.one.stone.soup.core.StringHelper;
 
 public class RemoteWebServiceAccess {
 
@@ -32,8 +33,7 @@ public class RemoteWebServiceAccess {
 	}
 	
 	public static void getURLAsFile(String url,String user,String password,String fileName) throws IOException {
-		@SuppressWarnings("restriction")
-		String code = new sun.misc.BASE64Encoder().encode((user+":"+password).getBytes());
+		String code = StringHelper.encodeBase64(user+":"+password);
 		
 		URL u = new URL(url);
 		URLConnection c = u.openConnection();

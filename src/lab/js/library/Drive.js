@@ -37,7 +37,7 @@ function Drive(newRoot) {
 	}
 	
 	this.load = function(fileName) {
-		return tfs.load(fileName);
+		return ""+tfs.load(fileName);
 	}
 	
 	this.save = function(data,fileName) {

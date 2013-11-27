@@ -122,6 +122,8 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 			return;
 		}
 		
+		System.out.println("Started SDS at "+address+":"+port);
+		
 		while(running==true) {
 			
 			try {
@@ -140,6 +142,9 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 		EntityTree header = parseHeader(socket);
 		if(header==null) {
 			return;
+		}
+		if(authenticator!=null && authenticator.canAccess(header, socket)==false) {
+			send401(header,socket);
 		}
 		if(header.getAttribute("resource").equals("/")) {
 			sendPage(header,socket);
@@ -231,6 +236,16 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 		data.append("Server: Simple Sevice Server\n\n");
 		
 		data.append( "File not found." );
+		FileHelper.saveStringToOutputStream( data.toString(), socket.getOutputStream() );
+	}
+	
+	private void send401(EntityTree header,Socket socket) throws IOException {
+		StringBuilder data = new StringBuilder();
+		data.append("HTTP/1.1 401 Unauthorized\n");
+		data.append("WWW-Authenticate: Basic realm=\"Simple Sevice Server\"\n");
+		data.append("Server: Simple Sevice Server\n\n");
+		
+		data.append( "Not Authorized." );
 		FileHelper.saveStringToOutputStream( data.toString(), socket.getOutputStream() );
 	}
 	
@@ -487,8 +502,8 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 	}
 	
 	public void setAuthenticator(Authenticator authenticator) throws Exception {
-		if(authenticator != null) {
-			throw new Exception("Authenticator already set.");
+		if(this.authenticator != null) {
+			throw new Exception("Authenticator already set as "+authenticator);
 		}
 		this.authenticator = authenticator;
 	}
