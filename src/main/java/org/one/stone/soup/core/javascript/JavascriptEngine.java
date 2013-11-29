@@ -1,5 +1,7 @@
 package org.one.stone.soup.core.javascript;
 
+import javax.script.Bindings;
+import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -29,5 +31,13 @@ public class JavascriptEngine {
 	
 	public void mount(String alias,Object api) {
 		engine.put(alias, api);
+	}
+	
+	public String[] getObjects() {
+		//Bindings bindings = engine.getBindings(ScriptContext.GLOBAL_SCOPE);
+
+		Bindings bindings = engine.getBindings(ScriptContext.ENGINE_SCOPE);
+		
+		return bindings.keySet().toArray(new String[]{});
 	}
 }

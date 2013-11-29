@@ -4,10 +4,9 @@
 	<tr>
 		<td style="width: 50%;"><textarea cols="60" rows="20" of-id="data"></textarea><br/>
 		<input type="button" onclick="run();return false;" value="Run"/><br/>
-		<input type="text" of-id="fileName"> <input type="button" value="Load" onclick="load();"/> <input type="button" value="Save" onclick="save();"/>
-		
+		<input type="text" of-id="fileName"> <input type="button" value="Load" onclick="data=drawDrive.load(fileName);return false;"/> <input type="button" value="Save" onclick="drawDrive.save(data,fileName);return false;"/>
 		<ul>
-			<li of-repeatFor="file in files"><a href="#" onclick="fileName='{{file}}';load();return false;" >{{file}}</a></li>
+			<li of-repeatFor="file in files"><a href="#" onclick="fileName='{{file}}';data=drawDrive.load(fileName);return false;" >{{file}}</a></li>
 		</ul>
 		</td>
 		<td style="width: 50%;"><canvas id="canvas" width="400" height="400" style="border: solid 2px; background-color: black;"/></td>

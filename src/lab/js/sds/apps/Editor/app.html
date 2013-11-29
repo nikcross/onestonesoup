@@ -1,4 +1,7 @@
 <h1>Editor</h1>
 
 <textarea of-id="data" rows="40" cols="120"></textarea><br/>
-<input type="text" of-id="fileName"> <input type="button" value="Load" onclick="load();"/> <input type="button" value="Save" onclick="save();"/>
+<input type="text" of-id="fileName"> <input type="button" value="Load" onclick="data=editorDrive.load(fileName);return false;"/> <input type="button" value="Save" onclick="editorDrive.save(data,fileName);return false;"/>
+<ul>
+	<li of-repeatFor="file in files"><a href="#" onclick="fileName='{{file}}';data=editorDrive.load(fileName);return false;" >{{file}}</a></li>
+</ul>

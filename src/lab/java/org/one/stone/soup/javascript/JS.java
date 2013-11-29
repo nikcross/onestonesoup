@@ -15,6 +15,8 @@ import javax.script.ScriptException;
 import org.one.stone.soup.core.FileHelper;
 import org.one.stone.soup.core.javascript.JavascriptEngine;
 import org.one.stone.soup.process.CommandLineTool;
+import org.one.stone.soup.process.LogFile;
+import org.one.stone.soup.process.SimpleLogFile;
 
 public class JS extends CommandLineTool implements Runnable{
 
@@ -45,6 +47,7 @@ public class JS extends CommandLineTool implements Runnable{
 	private JSInstance js;
 	private Thread thread;
 	private static Map<String,URLClassLoader> classLoaders = new HashMap<String,URLClassLoader>();
+	private LogFile logFile = null;
 	
 	public class JSInstance {
 		public Object mountJar(String alias,String jarFile,String className) throws MalformedURLException, ClassNotFoundException {
@@ -111,6 +114,21 @@ public class JS extends CommandLineTool implements Runnable{
 			Thread.sleep(milliSeconds);
 		}
 		
+		public void setCommandLog(String logFileName) {
+			System.out.println( "Logging commands to "+new File(logFileName).getAbsolutePath() );
+			logFile = new SimpleLogFile(logFileName);
+		}
+		
+		public void help() {
+			String[] objects = jsEngine.getObjects();
+			
+			System.out.println( "Objects:" );
+			
+			for(String object: objects) {
+				System.out.println( "  "+object );
+			}
+		}
+		
 		public void exit() {
 			System.exit(0);
 		}
@@ -151,6 +169,10 @@ public class JS extends CommandLineTool implements Runnable{
 			}
 		}
 		
+		if(hasOption("log")) {
+			js.setCommandLog( getOption("log") );
+		}
+		
 		if(hasOption("noPrompt")==false) {
 			thread = new Thread(this,"Javascript Engine");
 			thread.start();
@@ -172,14 +194,23 @@ public class JS extends CommandLineTool implements Runnable{
 						if(line.equals("{{")) {
 							bufferMode=true;
 						} else {
+							if(logFile!=null) {
+								logFile.logMessage(line);
+							}
 							jsEngine.runScript(line,"User Input");
 						}
 					} else {
 						if(line.equals("}}")) {
+							if(logFile!=null) {
+								logFile.logMessage("{{\n"+code.toString()+"\n}}\n");
+							}
 							jsEngine.runScript(code.toString(),"User Input");
 							code=new StringBuffer();
 							bufferMode=false;
 						} else if(line.equals("}}+")) {
+							if(logFile!=null) {
+								logFile.logMessage("{{\n"+code.toString()+"\n}}+\n");
+							}
 							js.runAsync(code.toString());
 							code=new StringBuffer();
 							bufferMode=false;

@@ -16,32 +16,17 @@ function initGiraffe() {
 	data="pen.moveTo(200,200);";
 }
 
+OpenForum.loadScript("/library/Drive.js");
+function initDrive() {
+	drawDrive = new Drive("DrawDrive");
+	drawDrive.setFileListListener( function(newFiles) {
+		files = newFiles;
+	});
+}
+
 function run() {
 	eval(data);
 }
-
-function load() {
-	data = Ajax.doGet("service?action=drawDriveService.load&values="+fileName);
-}
-
-function save() {
-	params = new Post();
-	params.addItem("data",data);
-	params.addItem("fileName",fileName);
-	params.addItem("values","$data,$fileName");
-	Ajax.doPost("service?action=drawDriveService.save",params);
-}
-
-function getFilesList() {
-	JSON.get("service","drawDriveService.listFiles","values=/").onSuccess(listFiles).go();
-}
-
-function listFiles(response) {
-	files = response.value;
-}
-
-setInterval(getFilesList,15000);
-getFilesList();
 
 function clear() {
 	canvas.graphicsObjects = [];
