@@ -1,53 +1,50 @@
 <html>
 <link rel="icon" type="image/png" href="/images/js-icon.png" />
 <style>
-
-html, body, .mainBox {
-	margin: 0;
+body, html, .main {
 	width: 100%;
 	height: 100%;
-    overflow: hidden;
-    background: black;
-}
-body {
-	font-family: Helvetica;
-	font-size: 10px;
-	padding: 0px;
-    overflow: hidden;
-    background: black;
-}
-.mainBox {
-	border: solid 1px;
-}
-.toolBar {
-	height: 20px;
-	width: 100%;
 	margin: 0px;
 	padding: 0px;
-	background: black;
+	background-color: black;
+}
+.header, .footer {
 	color: white;
 }
-.tabBar {
-	height: 10px;
-	background: black;
-	color: white;
+.header {
+	background-image: -webkit-linear-gradient( top, black 2%, #AAAAFF 100% );
+	font-family: Helvetica;
+	font-size: 15px;
+	padding-left: 12px;
+	height: 25px;
 }
+<<<<<<< Upstream, based on origin/master
 .statusBar {
 	height: 10px;
 	width: 50%;
     background: black;
     color: white;
+=======
+.app {
+	font-family: Helvetica;
+	font-size: 10px;
+	height: 100%;
+	background-color: white;
+>>>>>>> be2479d Added OpenDevice support (first cut)
 }
-.treeBox {
-	border: solid 1px;
+.tabs {
+	font-family: Helvetica;
+	font-size: 10px;
+	height: 30px;
+	background-color: white;
 }
-.editBox {
-	border: solid 1px;
+.footer {
+	font-family: Helvetica;
+	font-size: 10px;
+	height: 20px;
 }
-.appBox {
-	border: solid 1px;
-    background: white;
-    color: black;
+table, tr, td {
+	padding: 0px;
 }
 .tab {
 	min-width: 150px;
@@ -1006,12 +1003,12 @@ function setStatus(status) {
 }
 </script>
 <body>
-<table class="mainBox">
- <tr><td colspan="2" class="toolBar">SDS 00.1 Alpha</td></tr>
- <tr><td colspan="2" id="appPanel" class="appBox"></td></tr>
- <tr>
- <td id="status" class="statusBar"></td>
- <td class="tabBar"><a of-repeatFor="tab in tabs" href="#{{tab.anchor}}" class="tab">{{tab.name}}</a></td></tr>
+<table class="main">
+	<tr><td class="header">Brand</td></tr>
+	<tr><td class="app" id="appPanel"></td></tr>
+	<tr><td class="tabs"><a of-repeatFor="tab in tabs" href="#{{tab.anchor}}" class="tab">{{tab.name}}</a></td></tr>
+	<tr><td class="footer">Status:<span id="status"></span></td></tr>
 </table>
 <div id="popup" class="popup"></div>
 </body>
+</html>

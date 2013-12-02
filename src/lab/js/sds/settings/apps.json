@@ -1,0 +1,6 @@
+({
+	draw: {
+		path: "Draw",
+		userSpace: "Draw"
+	}
+})

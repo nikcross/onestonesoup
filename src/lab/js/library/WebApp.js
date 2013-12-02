@@ -62,7 +62,7 @@ function WebApp(alias,address,port,page) {
 				var userName = part[0];
 				var password = part[1];
 				
-				var user = users["guest"];
+				var user = users.accounts[userName];
 				if( typeof(user)!="undefined" ) {
 					if(user.password==password) {
 						return true;

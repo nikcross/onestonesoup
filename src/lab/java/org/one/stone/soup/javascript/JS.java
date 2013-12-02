@@ -8,7 +8,9 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.script.ScriptException;
@@ -53,18 +55,26 @@ public class JS extends CommandLineTool implements Runnable{
 	private LogFile logFile = null;
 	
 	public class JSInstance {
-		public Object mountJar(String alias,String jarFile,String className) throws MalformedURLException, ClassNotFoundException {
-			File jar = new File(jarFile);
-			URL jarURL = jar.toURI().toURL();
+		public Object mountJar(String alias,String jarFile,String className) throws MalformedURLException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 			
-			URLClassLoader classLoader = new URLClassLoader( new URL[]{jarURL} );
+			List<URL> urlList = new ArrayList<URL>();
+			String[] jarFiles = jarFile.split(",");
+			for(String file: jarFiles) {		
+				File jar = new File(file);
+				URL jarURL = jar.toURI().toURL();
+				urlList.add(jarURL);
+			}
+			
+			URLClassLoader classLoader = new URLClassLoader( urlList.toArray(new URL[]{}) );
 			classLoaders.put(alias,classLoader);
 			
 			if(className==null) {
 				return null;
 			} else {
-				classLoader.loadClass(className);
-				return mount(alias,className);
+				Class clazz = classLoader.loadClass(className);
+				Object instance = clazz.newInstance();
+				jsEngine.mount(alias,instance);
+				return instance;
 			}
 		}
 		
