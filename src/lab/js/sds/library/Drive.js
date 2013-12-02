@@ -5,7 +5,9 @@ function Drive(driveName) {
 	var fileListListener = null;
 	
 	this.load = function(fileName) {
-		return Ajax.doGet("service?action="+driveName+"Service.load&values="+fileName);
+		return Ajax.doGet("service?action="+driveName+"Service.load&values="+fileName,true, new function() {
+			self.loaded(fileName);
+		});
 	}
 	
 	this.save = function(data,fileName) {
@@ -13,10 +15,21 @@ function Drive(driveName) {
 		params.addItem("data",data);
 		params.addItem("fileName",fileName);
 		params.addItem("values","$data,$fileName");
-		Ajax.doPost("service?action="+driveName+"Service.save",params);
+		Ajax.doPost("service?action="+driveName+"Service.save",params,true, new function() {
+			self.saved(fileName);
+		});
 	}
 	
-	var getFilesList = function() {
+	this.loaded = function(fileName) {
+		//Popup.notify( "File "+fileName+" saved." );
+		setStatus("Loaded "+fileName+" on "+new Date());
+	}
+	this.saved = function(fileName) {
+		//Popup.notify( "File "+fileName+" saved." );
+		setStatus("Saved "+fileName+" on "+new Date());
+	}
+	
+	this.getFilesList = function() {
 		JSON.get("service",driveName+"Service.listFiles","values=/").onSuccess(listFiles).go();
 	}
 	
@@ -27,7 +40,7 @@ function Drive(driveName) {
 		}
 	}
 	
-	this.setFileListListener( fn ){
+	this.setFileListListener = function( fn ){
 		fileListListener = fn;
 	}
 	

@@ -1,4 +1,4 @@
-OpenForum.loadScript("/apps/Draw/giraffe-0.0.2.js");
+OpenForum.loadScript("/library/giraffe/giraffe.js");
 //OpenForum.loadScript("/apps/Draw/CompassFace.object.js");
 //OpenForum.loadScript("/apps/Draw/Protractor.object.js");
 var pen = null;
@@ -16,13 +16,13 @@ function initGiraffe() {
 	data="pen.moveTo(200,200);";
 }
 
-OpenForum.loadScript("/library/Drive.js");
 function initDrive() {
-	drawDrive = new Drive("DrawDrive");
+	drawDrive = new Drive("drawDrive");
 	drawDrive.setFileListListener( function(newFiles) {
 		files = newFiles;
 	});
 }
+OpenForum.loadScript("/library/Drive.js");
 
 function run() {
 	eval(data);

@@ -34,7 +34,7 @@ body {
 }
 .statusBar {
 	height: 10px;
-	width: 25%;
+	width: 50%;
     background: black;
     color: white;
 }
@@ -64,6 +64,18 @@ body {
 .selected {
 	background: cyan;
 	color: black;
+}
+.popup {
+	position: absolute;
+	display: none;
+	width: 300px;
+	height: 300px;
+	top: 20px;
+	left: 80px;
+	background-color: white;
+	border: solid black 2px;
+	-moz-border-radius: 30px;
+	border-radius: 30px;
 }
 </style>
 <script>
@@ -344,24 +356,25 @@ body {
 		    return count;
 		}
 
-		this.loadScripts = function(scriptURLs,callback) {
-			var scripts="&callback="+callback;
-			var index=1;
-			for(scriptIndex in scriptURLs) {
-				scripts+="&script"+index+"="+scriptURLs[scriptIndex];
-				index++;
-			}
-		   var fileref = document.createElement("script");
-		   fileref.setAttribute("src",self.getRoot()+"/OpenForum/Javascripts?action=getScripts"+scripts);
-		   fileref.setAttribute("type","text/javascript");
-		   document.getElementsByTagName("head")[0].appendChild(fileref);
-		}
-
-		this.loadScript = function(scriptURL) {
+		this.loadScript = function(scriptURL,onSuccess) {
 		   var fileref = document.createElement("script");
 		   fileref.setAttribute("src",scriptURL);
 		   fileref.setAttribute("type","text/javascript");
 		   document.getElementsByTagName("head")[0].appendChild(fileref);
+		   
+		    fileref.onreadystatechange= function () {
+            	if (script.readyState == "loaded" || script.readyState == "complete"){
+                	script.onreadystatechange = null;
+                	if(onSuccess) {
+                		onSuccess();
+                	}
+            	}
+        	};
+        	fileref.onload= function(){
+        		if(onSuccess) {
+     	       		onSuccess();
+     	        }
+        	};
 		}
 
 		this.loadCSS = function(cssURL) {
@@ -960,6 +973,22 @@ function TreeNode(name,attributes) {
     }
 }
 
+	var Popup = new function() {
+		var self = this;
+		this.notify = function(message) {
+			document.getElementById("popup").innerHTML = message;
+			document.getElementById("popup").style.display = "block";
+			var timer = setTimeout(
+				function() {
+					self.hidePopup();		
+				},5000
+			);
+		}
+		this.hidePopup = function() {
+			document.getElementById("popup").style.display = "none";
+		}
+	}
+
 OpenForum.init = function() {
 	OpenForum.addApp("chat","appPanel","/apps/Chat/app.html","/apps/Chat/app.js"); 
 	OpenForum.addApp("editor","appPanel","/apps/Editor/app.html","/apps/Editor/app.js"); 
@@ -970,6 +999,10 @@ OpenForum.init = function() {
 	        {name: "Editor", anchor: "editor"},
 	        {name: "Draw", anchor: "draw"}
 	        ];
+}
+
+function setStatus(status) {
+	document.getElementById("status").innerHTML=status;
 }
 </script>
 <body>

@@ -1,12 +1,37 @@
-function load() {
-	data = Ajax.doGet("service?action=testDriveService.load&values="+fileName);
+OpenForum.getObject("dataNew").addListener(
+		function(obj) {
+			if(jsEditor.codeMirror.getValue()!=obj.getValue()) {
+				jsEditor.codeMirror.setValue(obj.getValue());
+			}
+		}
+	);
+OpenForum.getObject("jsEditor.codeMirror.getValue()").addListener(
+		function(obj) {
+			if(dataCurrent!=obj.getValue()) {
+				dataCurrent=obj.getValue();
+			}
+		}
+	);
+
+OpenForum.loadScript("/library/Drive.js");
+function initDrive() {
+	drawDrive = new Drive("testDrive");
+	drawDrive.setFileListListener( function(newFiles) {
+		files = newFiles;
+	});
 }
 
-function save() {
-	params = new Post();
-	params.addItem("data",data);
-	params.addItem("fileName",fileName);
-	params.addItem("values","$data,$fileName");
-	Ajax.doPost("service?action=testDriveService.save",params);
-	//JSON.post("service","testDriveService.save","values="+data+","+fileName).go();
+var jsEditor = null;
+var dataCurrent = "";
+var dataNew = "";
+function initJSEditor() {
+	jsEditor = new JSEditor("code");
+}
+OpenForum.loadScript("/library/JSEditor.js");
+
+function showDrive() {
+	document.getElementById("drive").style.display="block";
+}
+function hideDrive() {
+	document.getElementById("drive").style.display="none";
 }
