@@ -33,11 +33,19 @@ function Drive(driveName) {
 		JSON.get("service",driveName+"Service.listFiles","values=/").onSuccess(listFiles).go();
 	}
 	
+	this.getTree = function() {
+		JSON.get("service",driveName+"Service.getTree","values=/").onSuccess(refreshTree).go();
+	}
+	
 	var listFiles = function(response) {
 		files = response.value;
 		if(fileListListener!=null) {
 			fileListListener(files);
 		}
+	}
+	
+	var refreshTree = function(response) {
+		tree = response.value;
 	}
 	
 	this.setFileListListener = function( fn ){

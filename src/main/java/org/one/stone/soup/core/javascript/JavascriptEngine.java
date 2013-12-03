@@ -40,4 +40,12 @@ public class JavascriptEngine {
 		
 		return bindings.keySet().toArray(new String[]{});
 	}
+	
+	public Object getObject(String key) {
+		//Bindings bindings = engine.getBindings(ScriptContext.GLOBAL_SCOPE);
+
+		Bindings bindings = engine.getBindings(ScriptContext.ENGINE_SCOPE);
+		
+		return bindings.get(key);
+	}
 }

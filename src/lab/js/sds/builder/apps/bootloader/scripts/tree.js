@@ -57,8 +57,8 @@ function TreeNode(name,attributes) {
     var SPACE = "&nbsp;&nbsp;&nbsp;&nbsp;";
     var localDepth = 0;
 
-    this.addChild = function(id,title,attributes) {
-        var newChild = new TreeNode(id,title,attributes);
+    this.addChild = function(title,attributes) {
+        var newChild = new TreeNode(title,attributes);
         children[children.length] = newChild;
         return newChild;
     }

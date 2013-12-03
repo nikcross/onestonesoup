@@ -48,6 +48,10 @@ public class FileHelper {
 			out.close();
 		}
 	}
+	public static void appendStringToFile(String data,String fileName) throws IOException {
+		appendStringToFile(data, new File(fileName));
+	}
+	
 	public static void appendStringToFile(String data,File file) throws IOException {
 		OutputStream out = new FileOutputStream(file,true);
 		

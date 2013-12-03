@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -17,6 +18,8 @@ import org.one.stone.soup.core.javascript.JavascriptEngine;
 import org.one.stone.soup.process.CommandLineTool;
 import org.one.stone.soup.process.LogFile;
 import org.one.stone.soup.process.SimpleLogFile;
+
+import sun.org.mozilla.javascript.internal.NativeJavaClass;
 
 public class JS extends CommandLineTool implements Runnable{
 
@@ -129,6 +132,41 @@ public class JS extends CommandLineTool implements Runnable{
 			}
 		}
 		
+		public void help(String name) {
+			Object object = jsEngine.getObject(name);
+			help(object);
+		}
+		
+		public void help(Object object) {
+			help(object,null);
+		}
+		
+		private void help(Object object,String name) {
+			if(name==null) {
+				name = "THING";
+			}
+			
+			Class clazz = object.getClass();
+			if(object instanceof NativeJavaClass) {
+				NativeJavaClass njc = (NativeJavaClass)object;
+				clazz = njc.getClassObject();
+			}
+			
+			Method[] methods = clazz.getDeclaredMethods();
+			System.out.println("("+clazz+") "+name);
+			for(Method method: methods) {
+				String methodLine = name+"."+method.getName()+"(";
+				Class<?>[] params = method.getParameterTypes();
+				for(Class param: params) {
+					methodLine+=param.getSimpleName()+", ";
+				}
+				methodLine+=")";
+				methodLine+=" "+method.getReturnType().getSimpleName();
+				
+				System.out.println( methodLine );
+			}
+		}
+		
 		public void exit() {
 			System.exit(0);
 		}
@@ -169,10 +207,6 @@ public class JS extends CommandLineTool implements Runnable{
 			}
 		}
 		
-		if(hasOption("log")) {
-			js.setCommandLog( getOption("log") );
-		}
-		
 		if(hasOption("noPrompt")==false) {
 			thread = new Thread(this,"Javascript Engine");
 			thread.start();
@@ -180,6 +214,10 @@ public class JS extends CommandLineTool implements Runnable{
 	}
 	
 	public void run() {
+		
+		if(hasOption("log")) {
+			js.setCommandLog( getOption("log") );
+		}
 		
 		BufferedReader reader = new BufferedReader( new InputStreamReader(System.in) );
 		try {

@@ -7,6 +7,7 @@ function Drive(newRoot) {
 	tfs.setRoot(newRoot);
 	var serviceName = null;
 	var root = newRoot;
+	var self = this;
 	
 	this.createWebService = function(webApp,serviceName) {
 		this.serviceName = serviceName;
@@ -24,6 +25,9 @@ function Drive(newRoot) {
 					this.listFiles = function(directoryName) {
 						return tfs.listFiles(decodeURIComponent(directoryName));
 					}
+					this.getTree = function(directoryName) {
+						return self.getJSONTree(decodeURIComponent(directoryName));
+					}
 				}	
 			);
 	}
@@ -34,6 +38,41 @@ function Drive(newRoot) {
 	
 	this.listFiles = function(directory) {
 		return tfs.listFiles(directory);
+	}
+	
+	this.getJSONTree = function(directory) {
+		data="";
+		out.println("Directory:"+directory+" Data:" +data);
+		data = addDirectoryTreeNode(data,directory);
+		return data;
+	}
+	
+	var addDirectoryTreeNode = function(data,directory) {
+		data+="{";
+		data+="name: \""+directory+"\",";
+		
+		data+="leaves: ["
+		files = tfs.listFiles(directory);
+		for(var i in files) {
+			addFileTreeNode(data,files[i]);
+			out.println("Data:" +data);
+		}
+		
+		directories = tfs.listDirectories(directory);
+		for(var i in directories) {
+			addDirectoryTreeNode(data,directories[i]);
+			out.println("Data:" +data);
+		}
+		data+="]},";
+		
+		return data;
+	}
+	
+	var addFileTreeNode = function(data,file) {
+		data+="{";
+		data+="name: \""+file+"\"";
+		data+="},";
+		return data;
 	}
 	
 	this.load = function(fileName) {
