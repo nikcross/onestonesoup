@@ -45,7 +45,7 @@ function Drive(driveName) {
 	}
 	
 	var refreshTree = function(response) {
-		tree = response.value;
+		tree = response.tree;
 	}
 	
 	this.setFileListListener = function( fn ){

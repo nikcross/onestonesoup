@@ -8,6 +8,12 @@ webApp = new WebApp("bootLoader","localhost",8888,"src/lab/js/sds/boot-loader.ht
 adminDrive = new Drive("src/lab/js/sds/settings");
 webApp.setAuthentication(adminDrive,"users.json");
 
+testDrive = new Drive("src/lab/js/drive/Test");
+drawDrive = new Drive("src/lab/js/drive/Draw/user");
+
+testDrive.createWebService(webApp,"testDriveService");
+drawDrive.createWebService(webApp,"drawDriveService");
+
 webApp.start();
 
 } catch(e) {

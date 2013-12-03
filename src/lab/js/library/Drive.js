@@ -41,8 +41,7 @@ function Drive(newRoot) {
 	}
 	
 	this.getJSONTree = function(directory) {
-		data="";
-		out.println("Directory:"+directory+" Data:" +data);
+		data="response: {tree: ";
 		data = addDirectoryTreeNode(data,directory);
 		return data;
 	}
@@ -53,17 +52,21 @@ function Drive(newRoot) {
 		
 		data+="leaves: ["
 		files = tfs.listFiles(directory);
-		for(var i in files) {
-			addFileTreeNode(data,files[i]);
-			out.println("Data:" +data);
+		for(var i=0;i<files.length;i++) {
+			if(i>0) {
+				data+=",";
+			}
+			data = addFileTreeNode(data,files[i]);
 		}
 		
 		directories = tfs.listDirectories(directory);
-		for(var i in directories) {
-			addDirectoryTreeNode(data,directories[i]);
-			out.println("Data:" +data);
+		for(var i=0;i<directories;i++) {
+			if(i>0) {
+				data+=",";
+			}
+			data = addDirectoryTreeNode(data,directories[i]);
 		}
-		data+="]},";
+		data+="]}}";
 		
 		return data;
 	}
@@ -71,7 +74,7 @@ function Drive(newRoot) {
 	var addFileTreeNode = function(data,file) {
 		data+="{";
 		data+="name: \""+file+"\"";
-		data+="},";
+		data+="}";
 		return data;
 	}
 	
