@@ -34,18 +34,27 @@ public class JavascriptEngine {
 	}
 	
 	public String[] getObjects() {
-		//Bindings bindings = engine.getBindings(ScriptContext.GLOBAL_SCOPE);
-
 		Bindings bindings = engine.getBindings(ScriptContext.ENGINE_SCOPE);
 		
 		return bindings.keySet().toArray(new String[]{});
 	}
 	
 	public Object getObject(String key) {
-		//Bindings bindings = engine.getBindings(ScriptContext.GLOBAL_SCOPE);
-
 		Bindings bindings = engine.getBindings(ScriptContext.ENGINE_SCOPE);
 		
 		return bindings.get(key);
+	}
+	
+	public String getObjectKey(Object object) {
+		Bindings bindings = engine.getBindings(ScriptContext.ENGINE_SCOPE);
+		if( bindings.containsValue(object)==false ) {
+			return null;
+		}
+		for(String key: bindings.keySet()) {
+			if(bindings.get(key)==object) {
+				return key;
+			}
+		}
+		return null;
 	}
 }

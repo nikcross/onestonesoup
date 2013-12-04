@@ -21,7 +21,9 @@ import org.one.stone.soup.process.CommandLineTool;
 import org.one.stone.soup.process.LogFile;
 import org.one.stone.soup.process.SimpleLogFile;
 
+import sun.org.mozilla.javascript.internal.NativeFunction;
 import sun.org.mozilla.javascript.internal.NativeJavaClass;
+import sun.org.mozilla.javascript.internal.NativeObject;
 
 public class JS extends CommandLineTool implements Runnable{
 
@@ -152,14 +154,19 @@ public class JS extends CommandLineTool implements Runnable{
 		}
 		
 		private void help(Object object,String name) {
-			if(name==null) {
-				name = "THING";
-			}
-			
 			Class clazz = object.getClass();
-			if(object instanceof NativeJavaClass) {
+			if( object instanceof NativeJavaClass ) {
 				NativeJavaClass njc = (NativeJavaClass)object;
 				clazz = njc.getClassObject();
+			}
+		//		System.out.println("Sorry. No help available for this.");
+		//		return;
+		//	}
+			if(name==null) {
+				name = jsEngine.getObjectKey(object);
+				if(name==null) {
+					name = "THING";
+				}
 			}
 			
 			Method[] methods = clazz.getDeclaredMethods();
@@ -194,7 +201,8 @@ public class JS extends CommandLineTool implements Runnable{
 			new Thread(this,"JS Thread").start();
 		}
 		public void run() {
-			jsEngine.run(code);
+			Object result = jsEngine.run(code);
+			displayResult(result);
 		}
 	}
 	
@@ -205,6 +213,19 @@ public class JS extends CommandLineTool implements Runnable{
 		jsEngine.mount("js",js);
 		jsEngine.mount("out",System.out);
 		jsEngine.mount("err",System.err);
+		
+		try {
+			String initScript = FileHelper.loadFileAsString( this.getClass().getResourceAsStream("init.sjs") );
+			if(initScript!=null) {
+				try {
+					jsEngine.runScript( initScript );
+				} catch (ScriptException e) {
+					e.printStackTrace();
+				}
+			}
+		} catch (IOException e1) {
+		}
+		
 		
 		if(getParameter(0)!=null) {
 			try {
@@ -245,14 +266,16 @@ public class JS extends CommandLineTool implements Runnable{
 							if(logFile!=null) {
 								logFile.logMessage(line);
 							}
-							jsEngine.runScript(line,"User Input");
+							Object result = jsEngine.runScript(line,"User Input");
+							displayResult(result);
 						}
 					} else {
 						if(line.equals("}}")) {
 							if(logFile!=null) {
 								logFile.logMessage("{{\n"+code.toString()+"\n}}\n");
 							}
-							jsEngine.runScript(code.toString(),"User Input");
+							Object result = jsEngine.runScript(code.toString(),"User Input");
+							displayResult(result);
 							code=new StringBuffer();
 							bufferMode=false;
 						} else if(line.equals("}}+")) {
@@ -282,6 +305,17 @@ public class JS extends CommandLineTool implements Runnable{
 			
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	private void displayResult(Object result) {
+		if(result==null) return;
+		if(
+				result instanceof String ||
+				result instanceof Integer ||
+				result instanceof Double
+		) {
+			System.out.println(result.toString());
 		}
 	}
 }
