@@ -14,12 +14,12 @@ public class JSONHelper {
 	/**
 	 *
 	 */
-	private JSONHelper() {
-		super();
-	}
 
-	public static String toJSON(Object instance)
-	{
+	public static String toJSON(Object instance) {
+		return new JSONHelper()._toJSON(instance);
+	}
+	
+	private String _toJSON(Object instance) {
 		if(instance==null)
 		{
 			instance = new NullPointerException();
@@ -85,7 +85,7 @@ public class JSONHelper {
 		return buffer.toString();
 	}
 
-	private static boolean tryToAppendValue(StringBuffer buffer, Object instance) {
+	private boolean tryToAppendValue(StringBuffer buffer, Object instance) {
 		int length = buffer.length();
 		if(
 				instance instanceof String
@@ -158,7 +158,7 @@ public class JSONHelper {
 		}
 	}
 
-	private static List<Method> getGetters(@SuppressWarnings("rawtypes") Class clazz,boolean includeThoseWithoutSetters)
+	private List<Method> getGetters(@SuppressWarnings("rawtypes") Class clazz,boolean includeThoseWithoutSetters)
 	{
 		Method[] methods = clazz.getMethods();
 

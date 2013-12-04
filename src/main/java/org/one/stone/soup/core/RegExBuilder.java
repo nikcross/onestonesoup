@@ -4,8 +4,6 @@ public class RegExBuilder {
 
 	StringBuffer expression = new StringBuffer();
 	
-	private RegExBuilder() {}
-	
 	public static RegExBuilder regex() {
 		return new RegExBuilder();
 	}

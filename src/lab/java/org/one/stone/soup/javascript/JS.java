@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -172,6 +173,9 @@ public class JS extends CommandLineTool implements Runnable{
 			Method[] methods = clazz.getDeclaredMethods();
 			System.out.println("("+clazz+") "+name);
 			for(Method method: methods) {
+				if(Modifier.isPublic(method.getModifiers())==false) {
+					continue;
+				}
 				String methodLine = name+"."+method.getName()+"(";
 				Class<?>[] params = method.getParameterTypes();
 				for(Class param: params) {
