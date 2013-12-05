@@ -6,13 +6,15 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import com.sun.script.javascript.RhinoScriptEngine;
+
 public class JavascriptEngine {
 
-	private ScriptEngine engine;
+	private RhinoScriptEngine engine;
 	
 	public JavascriptEngine() {
 		ScriptEngineManager factory = new ScriptEngineManager();
-		engine = factory.getEngineByName("JavaScript");
+		engine = (RhinoScriptEngine)factory.getEngineByName("JavaScript");
 	}
 	
 	public Object runScript(String script) throws ScriptException {
