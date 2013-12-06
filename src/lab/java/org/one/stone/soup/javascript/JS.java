@@ -16,6 +16,7 @@ import java.util.Map;
 
 import javax.script.ScriptException;
 
+import org.one.stone.soup.core.DirectoryHelper;
 import org.one.stone.soup.core.FileHelper;
 import org.one.stone.soup.core.javascript.JavascriptEngine;
 import org.one.stone.soup.process.CommandLineTool;
@@ -64,8 +65,18 @@ public class JS extends CommandLineTool implements Runnable{
 			String[] jarFiles = jarFile.split(",");
 			for(String file: jarFiles) {		
 				File jar = new File(file);
-				URL jarURL = jar.toURI().toURL();
-				urlList.add(jarURL);
+				if(jar.isDirectory()) {
+					List<File> jars = DirectoryHelper.findFiles(jar.getAbsolutePath(), ".*\\.jar", true);
+					for(File j: jars) {
+						System.out.println("added jar "+j.getAbsolutePath());
+						URL jarURL = j.toURI().toURL();
+						urlList.add(jarURL);
+					}
+				} else {
+					System.out.println("added jar "+jar.getAbsolutePath());
+					URL jarURL = jar.toURI().toURL();
+					urlList.add(jarURL);
+				}
 			}
 			
 			URLClassLoader classLoader = new URLClassLoader( urlList.toArray(new URL[]{}) );
