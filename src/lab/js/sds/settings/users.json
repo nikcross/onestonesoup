@@ -1,8 +1,0 @@
-({
-	accounts: {
-		guest: {password: "password", roles: [], teams: []},
-		admin: {password: "password", roles: ["Administrator"], teams: []},
-		},
-	roles: ["Administrator","User"],
-	teams: []
-})

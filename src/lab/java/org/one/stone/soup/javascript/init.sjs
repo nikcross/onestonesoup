@@ -10,6 +10,9 @@ js.mount("RegExBuilder","org.one.stone.soup.core.RegExBuilder");
 js.mount("ZipHelper","org.one.stone.soup.core.ZipHelper");
 js.mount("CSVHelper","org.one.stone.soup.core.data.CSVHelper");
 js.mount("XmlHelper","org.one.stone.soup.core.data.XmlHelper");
+js.mount("OperatingSystem","org.one.stone.soup.javascript.helper.OperatingSystem");
+js.mount("RemoteWebServiceAccess","org.one.stone.soup.javascript.helper.RemoteWebServiceAccess");
+js.mount("TimeTrigger","org.one.stone.soup.javascript.helper.TimeTrigger");
 
 function help(obj) {
 	if(typeof(obj)=="undefined") {

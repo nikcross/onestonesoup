@@ -261,7 +261,7 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 	
 	private void sendResource(EntityTree header,Socket socket) throws IOException {
 		String request = header.getAttribute("resource");
-		File root = new File(pageFile).getParentFile();
+		File root = new File(pageFile).getParentFile().getParentFile();
 		File resource = new File(root.getAbsolutePath()+"/"+request);
 		if(resource.exists()==false) {
 			send404(header, socket);

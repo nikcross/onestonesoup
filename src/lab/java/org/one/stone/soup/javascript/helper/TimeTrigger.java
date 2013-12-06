@@ -4,10 +4,6 @@ public class TimeTrigger implements Runnable {
 
 	private TimeTrigger timeTrigger;
 	
-	private TimeTrigger() {
-		
-	}
-	
 	public static TimeTrigger initialise(String fileName) {
 		return null;
 	}

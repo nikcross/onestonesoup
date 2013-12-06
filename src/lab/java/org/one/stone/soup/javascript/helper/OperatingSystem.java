@@ -2,59 +2,58 @@ package org.one.stone.soup.javascript.helper;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadInfo;
 
 public class OperatingSystem {
 
-	public String getOperatingSystem() {
+	public static String getOperatingSystem() {
 		return System.getProperty("os.name");
 	}
 	
-	public String getOperatingSystemVersion() {
+	public static String getOperatingSystemVersion() {
 		return System.getProperty("os.version");
 	}
 	
-	public String getJavaVersion() {
+	public static String getJavaVersion() {
 		return System.getProperty("java.vendor")+" "+System.getProperty("java.version");
 	}
 	
-	public long getTime() {
+	public static long getTime() {
 		return System.currentTimeMillis();
 	}
 	
-	public long getStartTime() {
+	public static long getStartTime() {
 		return ManagementFactory.getRuntimeMXBean().getStartTime();
 	}
 	
-	public long getDriveTotalSpace(String path) {
+	public static long getDriveTotalSpace(String path) {
 		return new File(path).getTotalSpace();
 	}
 	
-	public long getDriveFreeSpace(String path) {
+	public static long getDriveFreeSpace(String path) {
 		return new File(path).getFreeSpace();
 	}
 	
-	public String getProcessor() {
+	public static String getProcessor() {
 		return System.getProperty("os.arch");
 	}
 	
-	public int getProcessorLoad() {
+	public static int getProcessorLoad() {
 		return (int)(ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage()*100);
 	}
 	
-	public long getProcessorUsed() {
+	public static long getProcessorUsed() {
 		return ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime();
 	}
 	
-	public int getProcessors() {
+	public static int getProcessors() {
 		return ManagementFactory.getOperatingSystemMXBean().getAvailableProcessors();
 	}
 	
-	public long getMemory() {
+	public static long getMemory() {
 		return Runtime.getRuntime().totalMemory();
 	}
 	
-	public long getMemoryUsed() {
+	public static long getMemoryUsed() {
 		return Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
 	}
 }
