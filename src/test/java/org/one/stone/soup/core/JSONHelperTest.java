@@ -3,6 +3,7 @@ package org.one.stone.soup.core;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.one.stone.soup.core.javascript.JSONHelper;
 
 public class JSONHelperTest {
 
