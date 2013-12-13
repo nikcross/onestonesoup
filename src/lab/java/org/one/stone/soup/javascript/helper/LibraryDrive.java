@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.one.stone.soup.core.FileHelper;
-import org.one.stone.soup.core.JSONHelper;
+import org.one.stone.soup.core.javascript.JSONHelper;
 
 public class LibraryDrive {
 

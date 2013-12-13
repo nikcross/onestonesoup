@@ -17,11 +17,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.one.stone.soup.core.FileHelper;
-import org.one.stone.soup.core.JSONHelper;
 import org.one.stone.soup.core.StringHelper;
 import org.one.stone.soup.core.data.EntityTree;
 import org.one.stone.soup.core.data.EntityTree.TreeEntity;
 import org.one.stone.soup.core.data.KeyValuePair;
+import org.one.stone.soup.core.javascript.JSONHelper;
 import org.one.stone.soup.process.CommandLineTool;
 
 import sun.org.mozilla.javascript.internal.NativeJavaObject;
