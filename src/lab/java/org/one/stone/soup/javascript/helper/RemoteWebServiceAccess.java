@@ -10,12 +10,14 @@ import org.one.stone.soup.core.StringHelper;
 
 public class RemoteWebServiceAccess {
 
+	@JSMethodHelp(signature="<URL of the resource>")
 	public static String getURLAsString(String url) throws IOException {
 		URL u = new URL(url);
 		URLConnection c = u.openConnection();
 		return FileHelper.loadFileAsString(c.getInputStream());
 	}
 	
+	@JSMethodHelp(signature="<URL of the resource>,<user name>,<password>")
 	public static String getURLAsString(String url,String user,String password) throws IOException {
 		@SuppressWarnings("restriction")
 		String code = new sun.misc.BASE64Encoder().encode((user+":"+password).getBytes());
@@ -26,12 +28,14 @@ public class RemoteWebServiceAccess {
 		return FileHelper.loadFileAsString(c.getInputStream());
 	}
 	
+	@JSMethodHelp(signature="<URL of the resource>,<file name to save the resource to>")
 	public static void getURLAsFile(String url,String fileName) throws IOException {
 		URL u = new URL(url);
 		URLConnection c = u.openConnection();
 		FileHelper.copyInputStreamToFile(c.getInputStream(),new File(fileName));
 	}
 	
+	@JSMethodHelp(signature="<URL of the resource>,<user name>,<password>,<file name to save the resource to>")
 	public static void getURLAsFile(String url,String user,String password,String fileName) throws IOException {
 		String code = StringHelper.encodeBase64(user+":"+password);
 		

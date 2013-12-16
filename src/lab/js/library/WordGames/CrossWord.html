@@ -1,0 +1,860 @@
+<html>
+
+<head>
+
+<script>
+
+
+
+var words = [
+"continually",
+"annual",
+"natural",
+"gradually",
+"criminal",
+"equal",
+"central",
+"monitor",
+"calendar",
+"proffesor",
+"theatre",
+"visitor"
+
+/*"yellow",
+"baffle",
+"fizz",
+"lesson",
+"squirt",
+"quest",
+"stamp",
+"stacks"*/
+];
+
+var definitions = [];
+
+var grid = []; // 3rd Dimension used to store letter and word direction(s) Down,Across and Both
+
+var wordIndex=1;
+
+var mode="test";
+//var mode="solve";
+
+function init() {
+    checkGridAvailable(1,1);
+
+    longestWord = findLongestWord();
+
+	writeWordAcrossGrid(0,0,longestWord,wordIndex);
+
+	wordIndex++;
+
+
+
+	nextWord=findNextWord();
+
+	console.log("Word: "+nextWord);
+
+	while(nextWord!="") {
+
+		fitWordOnGrid(nextWord);
+        renderGrid();
+
+		nextWord = findNextWord();
+
+		console.log("Word: "+nextWord);
+
+	}
+
+
+
+	renderGrid();
+
+}
+
+
+
+function fitWordOnGrid(word) {
+
+	//two grids. One for down scores and one for across scores.
+
+	//scoreGridA = [grid.length+(word.length*2)][grid[0].length];
+
+	//scoreGridD = [grid.length][grid[0].length+(word.length*2)];
+
+
+
+	scoreGridA = [];
+
+	scoreGridD = [];
+
+	for(x=0;x<grid.length+(word.length*2);x++) {
+
+		scoreGridA[x] = [];
+
+		scoreGridD[x] = [];
+
+		for(y=0;y<grid[0].length+(word.length*2);y++) {
+
+			scoreGridA[x][y]=0;
+
+			scoreGridD[x][y]=0;
+
+		}
+
+	}
+
+
+
+	//test if word can be placed across grid
+
+		//for each possible location
+
+		var x;
+
+		var y;
+
+		for(y=0;y<grid.length;y++) {
+
+		for(x=-word.length;x<grid.length+word.length;x++) {
+
+			console.log("Checking for "+word+" across at "+x+","+y);
+
+            if(getLetterAt(x-1,y)!="") {
+                scoreGridA[x+word.length][y+word.length] = -1;
+            } else if(getLetterAt(x+word.length,y)!="") {
+                scoreGridA[x+word.length][y+word.length] = -1;
+            } else {
+			for(var l=0;l<word.length;l++) {
+
+				//does word clash with word going across (bad, -1 score)
+
+				if(
+
+					getDirectionAt(x+l,y)=="A" || getDirectionAt(x+l,y)=="B" ||
+
+					getDirectionAt(x+l,y-1)=="A" || getDirectionAt(x+l,y-1)=="B" ||
+
+					getDirectionAt(x+l,y+1)=="A" || getDirectionAt(x+l,y+1)=="B"
+
+ 				) {
+
+					scoreGridA[x+word.length][y+word.length] = -1;
+
+					console.log("Failed across at "+x+","+y+" on clash");
+
+					break;
+
+				}
+
+				//does word match with word letters going down (good, score+1 if score not -1, higher score for more matches)
+
+				if(getLetterAt(x+l,y)=="") {
+                    if(getLetterAt(x+l,y-1)!="") {
+                        scoreGridA[x+word.length][y+word.length] = -1;
+                        break;
+                    }
+                    if(getLetterAt(x+l,y+1)!="") {
+                        scoreGridA[x+word.length][y+word.length] = -1;
+                        break;
+                    }
+				} else if( getLetterAt(x+l,y)==word.substring(l,l+1) ) {
+
+					scoreGridA[x+word.length][y+word.length] += 1;
+                    if(x>0 && x<getGridWidth()) {
+                        scoreGridA[x+word.length][y+word.length] += 1;
+                    }
+                    if(y>0 && y<getGridHeight()) {
+                        scoreGridA[x+word.length][y+word.length] += 1;
+                    }
+
+					console.log("PASSED across at "+x+","+y+" on match "+getLetterAt(x+l,y)+"=="+word.substring(l,l+1));
+
+				} else {
+
+					scoreGridA[x+word.length][y+word.length] = -1;
+
+					console.log("Failed across at "+x+","+y+" on mismatch "+getLetterAt(x+l,y)+"!="+word.substring(l,l+1));
+
+					break; 
+
+				}
+
+			}
+		    }
+
+		}
+
+		}
+
+
+
+	//test if word can be placed down grid
+
+		//for each possible location
+
+		for(y=-word.length;y<grid.length+word.length;y++) {
+
+		for(x=0;x<grid.length;x++) {
+
+			console.log("Checking for "+word+" down at "+x+","+y);
+
+            if(getLetterAt(x,y-1)!="") {
+                scoreGridD[x+word.length][y+word.length] = -1;
+            } else if(getLetterAt(x,y+word.length)!="") {
+                scoreGridD[x+word.length][y+word.length] = -1;
+            } else {
+			for(var l=0;l<word.length;l++) {
+
+				//does word clash with word going down (bad, -1 score)
+
+				if(
+
+					getDirectionAt(x,y+l)=="D" || getDirectionAt(x,y+l)=="B" || 
+
+					getDirectionAt(x-1,y+l)=="D" || getDirectionAt(x-1,y+l)=="B" || 
+
+					getDirectionAt(x+1,y+l)=="D" || getDirectionAt(x+1,y+l)=="B"
+
+				) {
+
+					scoreGridD[x+word.length][y+word.length] = -1;
+
+					console.log("Failed down at "+x+","+y+" on clash");
+
+					break;
+
+				}
+
+				//does word match with word letters going across (good, score+1 if score not -1, higher score for more matches)
+
+				if(getLetterAt(x,y+l)=="") {
+                    if(getLetterAt(x-1,y+l)!="") {
+                        scoreGridD[x+word.length][y+word.length] = -1;
+                        break;
+                    }
+                    if(getLetterAt(x+1,y+l)!="") {
+                        scoreGridD[x+word.length][y+word.length] = -1;
+                        break;
+                    }
+				} else if( getLetterAt(x,y+l)==word.substring(l,l+1) ) {
+
+					scoreGridD[x+word.length][y+word.length] += 1;
+                    if(x>0 && x<getGridWidth()) {
+                        scoreGridD[x+word.length][y+word.length] += 1;
+                    }
+                    if(y>0 && y<getGridHeight()) {
+                        scoreGridD[x+word.length][y+word.length] += 1;
+                    }
+
+					console.log("PASSED down at "+x+","+y+" on match "+getLetterAt(x,y+l)+"=="+word.substring(l,l+1));
+
+				} else {
+
+					scoreGridD[x+word.length][y+word.length] = -1;
+
+					console.log("Failed down at "+x+","+y+" on mismatch "+getLetterAt(x,y+l)+"!="+word.substring(l,l+1));
+
+					break; 
+
+				}
+
+			}
+            }
+
+		}
+
+		}
+
+
+
+	//highest match is used
+
+	high = -1;
+
+	highD = "";
+
+	highX = 0;
+
+	highY = 0;
+
+	for(y=-word.length;y<grid.length+word.length;y++) {
+
+	for(x=-word.length;x<grid.length+word.length;x++) {
+
+		if(scoreGridA[x+word.length][y+word.length]>high) {
+
+			high = scoreGridA[x+word.length][y+word.length];
+
+			highD="A";
+
+			highX=x;
+
+			highY=y;
+
+		}
+
+		if(scoreGridD[x+word.length][y+word.length]>high) {
+
+			high = scoreGridD[x+word.length][y+word.length];
+
+			highD="D";
+
+			highX=x;
+
+			highY=y;
+
+		}
+
+	}
+
+	}
+
+	if(high>0) {
+
+		if(highX<0 || highY<0) {
+
+			checkGridAvailable(highX,highY);
+
+			if(highX<0) highX=0;
+
+			if(highY<0) highY=0;
+
+		}
+
+
+
+		if(highD=="A") {
+
+			writeWordAcrossGrid(highX,highY,word,wordIndex);
+
+			wordIndex++;
+
+			console.log("Placed "+word+" across at "+highX+","+highY+" Sc:"+high);
+
+		} else {
+
+			writeWordDownGrid(highX,highY,word,wordIndex);
+
+			wordIndex++;
+
+			console.log("Placed "+word+" down at "+highX+","+highY+" Sc:"+high);
+
+		}
+
+	} else {
+
+	//no positive matches gives error
+
+		console.log("Could not place "+word);
+
+        writeWordDownGrid(grid.length+1,0,word,wordIndex);
+	}
+
+}
+
+
+
+function findLongestWord() {
+
+	longest = "";
+
+	index = -1;
+
+	for(w=0;w<words.length;w++) {
+
+		word = words[w];
+
+		if(word!="" && word.length>longest.length) {
+
+			longest = word;
+
+			index = w;
+
+		}
+
+	}
+
+	if(longest=="") return "";
+
+	words[index]="";
+
+	return longest;
+
+}
+
+
+
+function findNextWord() {
+
+	for(w=0;w<words.length;w++) {
+
+		word = words[w];
+
+		if(word!="") {
+
+			 words[w] = "";
+
+			return word;
+
+		}
+
+	}
+
+	return "";
+
+}
+
+function getGridWidth() {
+    return grid.length;
+}
+
+function getGridHeight() {
+    return grid[0].length;
+}
+
+function writeWordAcrossGrid(x,y,word,index) {
+
+	for(i=0;i<word.length;i++) {
+
+		if(i==0) {
+
+			j=index;
+
+		} else {
+
+			j="";
+
+		}
+
+		setLetterAt(x+i,y,word.substring(i,i+1),"A",j);
+
+	}
+
+}
+
+
+
+function writeWordDownGrid(x,y,word,index) {
+
+	for(i=0;i<word.length;i++) {
+
+		if(i==0) {
+
+			j=index;
+
+		} else {
+
+			j="";
+
+		}	
+
+		setLetterAt(x,y+i,word.substring(i,i+1),"D",j);
+
+	}
+
+}
+
+
+
+function getLetterAt(x,y) {
+
+	if(x<0 || y<0) return "";
+
+	if(x >= grid.length) return "";
+
+	if(y >= grid[x].length) return "";
+
+
+
+	return grid[x][y][0];
+
+}
+
+
+
+function getDirectionAt(x,y) {
+
+	if(x<0 || y<0) return "";
+
+	if(x >= grid.length) return "";
+
+	if(y >= grid[x].length) return "";
+
+
+
+	return grid[x][y][1];
+
+}
+
+
+
+function getIndexAt(x,y) {
+
+	if(x<0 || y<0) return "";
+
+	if(x >= grid.length) return "";
+
+	if(y >= grid[x].length) return "";
+
+
+
+	if( typeof(grid[x][y][2])!="undefined" )	{
+
+		return grid[x][y][2];
+
+	} else {
+
+		return "";
+
+	}
+
+}
+
+
+
+function setLetterAt(x,y,letter,direction,index) {
+
+	checkGridAvailable(x,y);
+
+	grid[x][y][0] = letter;
+
+	if(grid[x][y][1]=="A" || grid[x][y][1]=="D" || grid[x][y][1]=="B") {
+
+		grid[x][y][1]="B";
+
+	} else {
+
+		grid[x][y][1]=direction;
+
+	}
+
+	if(index!="") {
+
+		grid[x][y][2]=index;
+
+	}
+
+	console.log(x+","+y+" = "+grid[x][y][0]+" D:"+grid[x][y][1]);
+
+}
+
+
+
+function insertRows(rows) {
+
+	console.log("Inserting "+rows+" rows");
+
+	for(r=0;r<rows;r++) {
+
+		gl = grid.length+1;
+
+		for(x=gl;x>0;x--) {
+
+			grid[x] = grid[x-1];
+
+		}
+
+		grid[0] = ["","",""];
+
+	}
+
+}
+
+
+
+function checkGridAvailable(a,b) {
+
+	requiredX = a;
+
+	requiredY = b;
+
+
+
+	var offX = 0;
+
+	var offY = 0;
+
+	if(a<0) {
+
+		requiredX = grid.length-a;
+
+		offX = -a;
+
+	}
+
+	if(b<0) {
+
+		requiredY = grid.length-b;
+
+		offY = -b;
+
+	}
+
+	requiredX++;
+
+	requiredY++;
+
+
+
+	if(requiredX<grid.length &&
+
+		typeof(grid[0])!="undefined" &&
+
+		requiredY<grid[0].length) return;
+
+	if(grid.length>requiredX) {
+
+		requiredX=grid.length;
+
+	}
+
+	if(typeof(grid[0])!="undefined" &&
+
+		grid[0].length>requiredY) {
+
+		requiredY=grid[0].length;
+
+	}
+
+
+
+	newGrid = [];
+
+	for(x=0;x<requiredX;x++) {
+
+		newGrid[x] = [];
+
+		for(y=0;y<requiredY;y++) {
+
+			newGrid[x][y]=["","",""];
+
+		}
+
+	}
+
+
+
+	for(x=0;x<requiredX;x++) {
+
+		for(y=0;y<requiredY;y++) {
+
+			if(typeof(grid[x])!="undefined" && typeof(grid[x][y])!="undefined") {
+
+				newGrid[x+offX][y+offY]=grid[x][y];
+
+			}
+
+		}
+
+	}
+
+
+
+	grid = newGrid;
+
+}
+
+
+
+function renderGrid() {
+
+	console.log("Rendering");
+
+
+
+	gridElement = document.getElementById("grid");
+
+	gridHtml = "<table>";
+
+
+
+	console.log("grid x = "+grid.length);
+
+	console.log("grid y = "+grid[0].length);
+
+
+
+	for(var y=0;y<grid[0].length;y++) {
+
+		gridHtml += "<tr>";
+
+		for(var x=0;x<grid.length;x++) {
+
+			letter = getLetterAt(x,y);
+
+			number = getIndexAt(x,y);
+
+			if(letter=="") {
+
+				gridHtml += "<td class=\"white-cell\"></td>";
+
+			} else {
+                if(mode=="test") {
+    			    gridHtml += "<td class=\"letter-cell\"><span class=\"cell-number\">&nbsp;</span><span class=\"cell-letter\">&nbsp;</span></td>";
+                } else {
+				    gridHtml += "<td class=\"letter-cell\"><span class=\"cell-number\">"+
+                    number+"</span><span class=\"cell-letter\">"+
+                    letter.toUpperCase()+"</span></td>";
+                }
+
+			}
+
+		}
+
+		gridHtml += "</tr>";
+
+	}
+
+
+
+	gridHtml +="</table>";
+
+
+
+	gridElement.innerHTML = gridHtml;
+
+
+
+
+
+	console.log("Rendered "+gridHtml);
+
+}
+
+
+
+</script>
+
+<style>
+
+#grid {
+
+	border: solid 2px black;
+
+	padding: 20px;
+
+	margin: 20px;
+
+}
+
+
+
+table { 
+
+    border-spacing:0;
+
+    border-collapse:collapse;
+
+}
+
+
+
+.letter-cell {
+
+	border: 2px solid black;
+
+	background: white;
+
+	width: 30px;
+
+	height: 30px;
+
+	-moz-border-radius: 5px;
+
+	border-radius: 5px;
+
+	box-shadow: 2px 2px 5px #AAAAAA;
+
+}
+
+.black-cell {
+
+	border: 2px solid black;
+
+	background: black;
+
+	width: 30px;
+
+	height: 30px;
+
+	-moz-border-radius: 5px;
+
+	border-radius: 5px;
+
+	box-shadow: 2px 2px 5px #AAAAAA;
+
+//	padding: 0px;
+
+//	margin: 0px;
+
+}
+
+.white-cell {
+
+	width: 30px;
+
+	height: 30px;
+
+	-moz-border-radius: 5px;
+
+//	border-radius: 5px;
+
+//	box-shadow: 2px 2px 5px #AAAAAA;
+
+//	padding: 0px;
+
+//	margin: 0px;
+
+}
+
+.cell-number {
+
+//	width: 10%;
+
+	height: 100%;
+
+	vertical-align: super;
+
+	text-align: right;
+
+	font-size: 8px;
+
+	padding: 3px;
+
+}
+
+.cell-letter {
+
+//	width: 90%;
+
+	height: 100%;
+
+	padding: 2px;
+
+	text-align: center;
+
+	font-size: 20px;
+
+}
+
+
+
+</style>
+
+</head>
+
+<body>
+
+<a href="#" onclick="init(); return false;">process</a>
+
+
+
+<div id="grid">
+
+
+
+ </div>
+
+</body>
+
+</html>

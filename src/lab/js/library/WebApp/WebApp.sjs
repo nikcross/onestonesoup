@@ -84,5 +84,13 @@ function WebApp(alias,address,port,page) {
 		
 		var authenticator = new org.one.stone.soup.sds.SimpleDeviceServer.Authenticator(authenticatorFn);
 		server.setAuthenticator(authenticator);
+		
+		var authenticationService = function() {
+			this.getUserName = function(name) {
+				return name;
+			}
+		}
+		
+		this.createUserService("authentication",authenticationService);
 	}
 }

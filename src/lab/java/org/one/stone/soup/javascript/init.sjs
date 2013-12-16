@@ -12,9 +12,9 @@ js.mount("CSVHelper","org.one.stone.soup.core.data.CSVHelper");
 js.mount("XmlHelper","org.one.stone.soup.core.data.XmlHelper");
 js.mount("OS","org.one.stone.soup.javascript.helper.OperatingSystem");
 js.mount("Web","org.one.stone.soup.javascript.helper.RemoteWebServiceAccess");
-js.mount("TimeTrigger","org.one.stone.soup.javascript.helper.TimeTrigger");
 js.mount("FileChooser","org.one.stone.soup.javascript.helper.FileChooser");
 js.mount("Popup","org.one.stone.soup.javascript.helper.Popup");
+TimeTrigger = org.one.stone.soup.javascript.helper.TimeTrigger;
 
 function help(obj) {
 	if(typeof(obj)=="undefined") {

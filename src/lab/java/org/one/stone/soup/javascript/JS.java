@@ -14,26 +14,32 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.script.ScriptException;
-
+import org.mozilla.javascript.NativeJavaClass;
 import org.one.stone.soup.core.DirectoryHelper;
 import org.one.stone.soup.core.FileHelper;
-import org.one.stone.soup.core.javascript.JavascriptEngine;
+import org.one.stone.soup.javascript.helper.JSHelp;
 import org.one.stone.soup.process.CommandLineTool;
 import org.one.stone.soup.process.LogFile;
 import org.one.stone.soup.process.SimpleLogFile;
 
-import sun.org.mozilla.javascript.internal.NativeFunction;
-import sun.org.mozilla.javascript.internal.NativeJavaClass;
-import sun.org.mozilla.javascript.internal.NativeObject;
-
 public class JS extends CommandLineTool implements Runnable{
 
+	private static JS js;
+	private static String[] initArgs = new String[]{};
+	
 	public static void main(String[] args) {
-		new JS(args);
+		initArgs = args;
+		getInstance();
 	}
 	
-	public JS(String[] args) {
+	public static JSInterface getInstance() {
+		if(js==null) {
+			js = new JS(initArgs);
+		}
+		return js.jsInterface;
+	}
+	
+	private JS(String[] args) {
 		super(args);
 	}
 
@@ -53,18 +59,26 @@ public class JS extends CommandLineTool implements Runnable{
 	}
 
 	private JavascriptEngine jsEngine;
-	private JSInstance js;
+	private JSInterface jsInterface;
 	private Thread thread;
 	private static Map<String,URLClassLoader> classLoaders = new HashMap<String,URLClassLoader>();
 	private LogFile logFile = null;
 	
-	public class JSInstance {
+	public class JSInterface {
+		private JavascriptEngine jsEngine;
+		public JSInterface(JavascriptEngine jsEngine) {
+			this.jsEngine = jsEngine;
+		}
+		
 		public Object mountJar(String alias,String jarFile,String className) throws MalformedURLException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 			
 			List<URL> urlList = new ArrayList<URL>();
 			String[] jarFiles = jarFile.split(",");
 			for(String file: jarFiles) {		
 				File jar = new File(file);
+				if(jar.exists()==false) {
+					System.out.println("Jar "+jar.getAbsolutePath()+" does not exist.");
+				}
 				if(jar.isDirectory()) {
 					List<File> jars = DirectoryHelper.findFiles(jar.getAbsolutePath(), ".*\\.jar", true);
 					for(File j: jars) {
@@ -108,10 +122,14 @@ public class JS extends CommandLineTool implements Runnable{
 			return null;
 		}
 		
+		public String getObjectAlias(Object object) {
+			return jsEngine.getObjectKey(object);
+		}
+		
 		public Object run(String command) {
 			try {
 				return jsEngine.runScript(command);
-			} catch (ScriptException e) {
+			} catch (JavascriptException e) {
 				e.printStackTrace();
 			}
 			return null;
@@ -120,7 +138,7 @@ public class JS extends CommandLineTool implements Runnable{
 		public Object runScript(String fileName) {
 			try {
 				return jsEngine.runScript( FileHelper.loadFileAsString(fileName),fileName );
-			} catch (ScriptException e) {
+			} catch (JavascriptException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -146,6 +164,10 @@ public class JS extends CommandLineTool implements Runnable{
 			logFile = new SimpleLogFile(logFileName);
 		}
 		
+		public JavascriptEngine getEngine(String scopeName) {
+			return jsEngine.getEngine(scopeName);
+		}
+		
 		public void help() {
 			String[] objects = jsEngine.getObjects();
 			
@@ -166,37 +188,7 @@ public class JS extends CommandLineTool implements Runnable{
 		}
 		
 		private void help(Object object,String name) {
-			Class clazz = object.getClass();
-			if( object instanceof NativeJavaClass ) {
-				NativeJavaClass njc = (NativeJavaClass)object;
-				clazz = njc.getClassObject();
-			}
-		//		System.out.println("Sorry. No help available for this.");
-		//		return;
-		//	}
-			if(name==null) {
-				name = jsEngine.getObjectKey(object);
-				if(name==null) {
-					name = "THING";
-				}
-			}
-			
-			Method[] methods = clazz.getDeclaredMethods();
-			System.out.println("("+clazz+") "+name);
-			for(Method method: methods) {
-				if(Modifier.isPublic(method.getModifiers())==false) {
-					continue;
-				}
-				String methodLine = name+"."+method.getName()+"(";
-				Class<?>[] params = method.getParameterTypes();
-				for(Class param: params) {
-					methodLine+=param.getSimpleName()+", ";
-				}
-				methodLine+=")";
-				methodLine+=" "+method.getReturnType().getSimpleName();
-				
-				System.out.println( methodLine );
-			}
+			System.out.println(JSHelp.help(object, name));
 		}
 		
 		public void exit() {
@@ -205,11 +197,11 @@ public class JS extends CommandLineTool implements Runnable{
 	}
 	
 	private class JSThread implements Runnable{
-		JSInstance jsEngine;
+		JSInterface jsEngine;
 		private String code;
 		private String fileName;
 		
-		private JSThread(String code,String fileName,JSInstance jsEngine) {
+		private JSThread(String code,String fileName,JSInterface jsEngine) {
 			this.code = code;
 			this.fileName = fileName;
 			this.jsEngine = jsEngine;
@@ -223,9 +215,9 @@ public class JS extends CommandLineTool implements Runnable{
 	
 	@Override
 	public void process() {
-		jsEngine = new JavascriptEngine();
-		js = new JSInstance();
-		jsEngine.mount("js",js);
+		jsEngine = JavascriptEngine.getInstance();
+		jsInterface = new JSInterface(this.jsEngine);
+		jsEngine.mount("js",jsInterface);
 		jsEngine.mount("out",System.out);
 		jsEngine.mount("err",System.err);
 		
@@ -234,7 +226,7 @@ public class JS extends CommandLineTool implements Runnable{
 			if(initScript!=null) {
 				try {
 					jsEngine.runScript( initScript );
-				} catch (ScriptException e) {
+				} catch (JavascriptException e) {
 					e.printStackTrace();
 				}
 			}
@@ -246,7 +238,7 @@ public class JS extends CommandLineTool implements Runnable{
 			try {
 				System.out.println("running "+new File(getParameter(0)).getAbsolutePath());
 				jsEngine.runScript( FileHelper.loadFileAsString(getParameter(0)),getParameter(0) );
-			} catch (ScriptException e) {
+			} catch (JavascriptException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -262,7 +254,7 @@ public class JS extends CommandLineTool implements Runnable{
 	public void run() {
 		
 		if(hasOption("log")) {
-			js.setCommandLog( getOption("log") );
+			jsInterface.setCommandLog( getOption("log") );
 		}
 		
 		BufferedReader reader = new BufferedReader( new InputStreamReader(System.in) );
@@ -297,14 +289,14 @@ public class JS extends CommandLineTool implements Runnable{
 							if(logFile!=null) {
 								logFile.logMessage("{{\n"+code.toString()+"\n}}+\n");
 							}
-							js.runAsync(code.toString());
+							jsInterface.runAsync(code.toString());
 							code=new StringBuffer();
 							bufferMode=false;
 						} else {
 							code.append("\n"+line);
 						}
 					}
-				} catch (ScriptException e) {
+				} catch (Throwable e) {
 					System.err.println(e.getMessage());
 					code=new StringBuffer();
 					bufferMode=false;

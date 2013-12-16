@@ -16,17 +16,18 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.mozilla.javascript.NativeJavaObject;
+import org.mozilla.javascript.NativeObject;
 import org.one.stone.soup.core.FileHelper;
 import org.one.stone.soup.core.StringHelper;
 import org.one.stone.soup.core.data.EntityTree;
 import org.one.stone.soup.core.data.EntityTree.TreeEntity;
 import org.one.stone.soup.core.data.KeyValuePair;
 import org.one.stone.soup.core.javascript.JSONHelper;
+import org.one.stone.soup.javascript.JS;
+import org.one.stone.soup.javascript.JavascriptEngine;
+import org.one.stone.soup.javascript.JavascriptException;
 import org.one.stone.soup.process.CommandLineTool;
-
-import sun.org.mozilla.javascript.internal.NativeJavaObject;
-import sun.org.mozilla.javascript.internal.NativeObject;
-import sun.org.mozilla.javascript.internal.Scriptable;
 
 
 public class SimpleDeviceServer extends CommandLineTool implements Runnable{
@@ -377,6 +378,8 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (JavascriptException e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -389,7 +392,7 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 		public String whoIs(EntityTree header);
 	}
 	
-	private Object callServiceMethod(String serviceName,String serviceMethod,String[] serviceValues, EntityTree header,Socket socket) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+	private Object callServiceMethod(String serviceName,String serviceMethod,String[] serviceValues, EntityTree header,Socket socket) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, JavascriptException {
 		
 		Object service = services.get(serviceName);
 		if(service instanceof Factory) {
@@ -405,7 +408,7 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 		}
 		
 		if(service instanceof NativeObject) {
-			return callJSServiceMethod((NativeObject)service, serviceMethod, serviceValues, header, socket);
+			return callJSServiceMethod(serviceName, serviceMethod, serviceValues, header, socket);
 		} else if(serviceValues.length==0) {
 			return service.getClass().getMethod(serviceMethod,null).invoke(service);
 		} else if(serviceValues.length==1) {
@@ -416,21 +419,23 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 	}
 	
 	@SuppressWarnings("restriction")
-	private Object callJSServiceMethod(NativeObject service,String serviceMethod,String[] serviceValues, EntityTree header,Socket socket) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
-		Object response = null;
-		if(serviceValues.length==0) {
-			response = NativeObject.callMethod((Scriptable)service, serviceMethod, new Object[]{});
-		} else if(serviceValues.length==1) {
-			response = NativeObject.callMethod((Scriptable)service, serviceMethod, new Object[]{serviceValues[0]});
-		} else {
-			response = NativeObject.callMethod((Scriptable)service, serviceMethod, serviceValues);
-		}
+	private Object callJSServiceMethod(String serviceName,String serviceMethod,String[] serviceValues, EntityTree header,Socket socket) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, JavascriptException {
+		
+		String script = convertServiceToScript(serviceName, serviceMethod);
+		JavascriptEngine engine = JS.getInstance().getEngine("temp");
+		engine.mount("header", header);
+		engine.mount("socket", socket);
+		Object response = engine.runScript(script);
 		
 		if(response instanceof NativeJavaObject) {
 			return ((NativeJavaObject)response).unwrap();
 		} else {
 			return response;
 		}
+	}
+	
+	private String convertServiceToScript(String serviceName,String serviceMethod) {
+		return "function fn() { return "+serviceName+"."+serviceMethod + "(); }; fn();";
 	}
 	
 	public void stop() {

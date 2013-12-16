@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD,ElementType.TYPE})       // This annotation can only be applied to class methods.
 public @interface JSMethodHelp {
 
-	String value() default "";
+	String signature() default "";
 	String url() default "";
 }

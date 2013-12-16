@@ -1,0 +1,1 @@
+java -jar JS.jar %1

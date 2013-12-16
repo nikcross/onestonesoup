@@ -1,15 +1,16 @@
 try{
 out.println("Boot Loader Started");
 out.println("Loading Objects");
-js.runScript("src/lab/js/library/Drive/Drive.sjs");
-js.runScript("src/lab/js/library/WebApp/WebApp.sjs");
+js.runScript("library/OperatingSystem/OS.sjs");
+js.runScript("library/Drive/Drive.sjs");
+js.runScript("library/WebApp/WebApp.sjs");
 
-webApp = new WebApp("bootLoader","localhost",8888,"src/lab/js/library/WebServer/boot-loader.html");
-adminDrive = new Drive("src/lab/js/user/admin");
+webApp = new WebApp("bootLoader",OS.getLocalAddress(),80,"library/WebApp/boot-loader.html");
+adminDrive = new Drive("user/admin");
 webApp.setAuthentication(adminDrive,"users.json");
 
-testDrive = new Drive("src/lab/js/user/guest/Test");
-drawDrive = new Drive("src/lab/js/user/guest/user");
+testDrive = new Drive("user/guest/Test");
+drawDrive = new Drive("user/guest/Draw");
 
 testDrive.createWebService(webApp,"testDriveService");
 drawDrive.createWebService(webApp,"drawDriveService");

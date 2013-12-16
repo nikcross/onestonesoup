@@ -25,10 +25,12 @@ public class OperatingSystem {
 		return ManagementFactory.getRuntimeMXBean().getStartTime();
 	}
 	
+	@JSMethodHelp(signature="<path to drive>")
 	public static long getDriveTotalSpace(String path) {
 		return new File(path).getTotalSpace();
 	}
 	
+	@JSMethodHelp(signature="<path to drive>")
 	public static long getDriveFreeSpace(String path) {
 		return new File(path).getFreeSpace();
 	}

@@ -88,7 +88,7 @@ function Drive(newRoot) {
 }
 
 //test
-testDrive = new Drive("src/lab/js/user/guest/Test","testDriveService");
+testDrive = new Drive("user/guest/Test","testDriveService");
 
 testData = "test data "+new Date();
 testDrive.save("test.txt",testData);
