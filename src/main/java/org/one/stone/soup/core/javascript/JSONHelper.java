@@ -93,7 +93,7 @@ public class JSONHelper {
 				instance instanceof String
 		)
 		{
-			buffer.append("\""+(String)instance+"\"");
+			buffer.append("\""+JavascriptHelper.escape((String)instance)+"\"");
 		}
 		else if(
 				instance instanceof String[]
@@ -107,7 +107,7 @@ public class JSONHelper {
 				if(count>0) {
 					buffer.append(",");
 				}
-				buffer.append("\""+(String)item+"\"");
+				buffer.append("\""+JavascriptHelper.escape((String)item)+"\"");
 			}
 			buffer.append("]");
 		}				

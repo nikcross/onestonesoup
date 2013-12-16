@@ -1,14 +1,17 @@
 package org.one.stone.soup.javascript.helper;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.one.stone.soup.core.FileHelper;
 import org.one.stone.soup.core.javascript.JSONHelper;
 
 public class TimeTrigger implements Runnable {
 
 	private static TimeTrigger timeTrigger;
-	private String fileName;
+	private String fileName = "user/admin/TimeTrigger.config.JSON";
 	
 	public static TimeTrigger initialise(String fileName) {
 		TimeTrigger timeTrigger = getInstance();
@@ -17,7 +20,10 @@ public class TimeTrigger implements Runnable {
 		return timeTrigger;
 	}
 	
-	public static void saveSchedule() {
+	public ScheduledTask getScheduledTask(String alias) {
+		return schedule.get(alias);
+	}
+	public static void saveSchedule() throws IOException {
 		getInstance().exportSchedule();
 	}
 	
@@ -36,10 +42,21 @@ public class TimeTrigger implements Runnable {
 		//TODO
 	}
 	
-	public static void runDaily(int hour, int minutes,String script) {
-		//TODO
+	public static void runDaily(String alias,int hour, int minutes,String script) {
+				
+		ScheduledTask task = getInstance().getNewScheduledTask();
+		task.hour = hour;
+		task.minute = minutes;
+		task.script = script;
+		task.alias = alias;
+		
+		getInstance().schedule.put(alias, task);
 	}
 	
+	private ScheduledTask getNewScheduledTask() {
+		return new ScheduledTask();
+	}
+
 	public static void runMonthly(int day, int hour,String script) {
 		//TODO
 	}
@@ -62,7 +79,61 @@ public class TimeTrigger implements Runnable {
 	}
 	
 	private boolean running = false;
-	private class ScheduledTask {
+	public class ScheduledTask {
+		public String getAlias() {
+			return alias;
+		}
+		public void setAlias(String alias) {
+			this.alias = alias;
+		}
+		public Integer getYear() {
+			return year;
+		}
+		public void setYear(Integer year) {
+			this.year = year;
+		}
+		public Integer getMonth() {
+			return month;
+		}
+		public void setMonth(Integer month) {
+			this.month = month;
+		}
+		public Integer getDay() {
+			return day;
+		}
+		public void setDay(Integer day) {
+			this.day = day;
+		}
+		public Integer getDayOfWeek() {
+			return dayOfWeek;
+		}
+		public void setDayOfWeek(Integer dayOfWeek) {
+			this.dayOfWeek = dayOfWeek;
+		}
+		public Integer getHour() {
+			return hour;
+		}
+		public void setHour(Integer hour) {
+			this.hour = hour;
+		}
+		public Integer getMinute() {
+			return minute;
+		}
+		public void setMinute(Integer minute) {
+			this.minute = minute;
+		}
+		public Integer getSecond() {
+			return second;
+		}
+		public void setSecond(Integer second) {
+			this.second = second;
+		}
+		public String getScript() {
+			return script;
+		}
+		public void setScript(String script) {
+			this.script = script;
+		}
 		private String alias;
 		private Integer year;
 		private Integer month;
@@ -109,22 +180,37 @@ public class TimeTrigger implements Runnable {
 		if(fileName==null) {
 			return;
 		}
+		File config = new File(fileName);
+		if(config.exists()==false) {
+			return;
+		}
 		//TODO
 	}
 	
 	@Override
 	public void finalize() {
-		exportSchedule();
+		try {
+			exportSchedule();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
-	private void exportSchedule() {
+	private void exportSchedule() throws IOException {
 		if(fileName==null) {
 			return;
 		}
-		//TODO
+		File config = new File(fileName);
+		if(config.getParentFile().exists()==false) {
+			config.getParentFile().mkdirs();
+		}
+		
+		StringBuffer configData = new StringBuffer();
 		for(String key: schedule.keySet()) {
 			ScheduledTask task = schedule.get(key);
-			JSONHelper.toJSON(task);
+			configData.append( JSONHelper.toJSON(task) );
 		}
+		
+		FileHelper.saveStringToFile(configData.toString(), config);
 	}
 }
