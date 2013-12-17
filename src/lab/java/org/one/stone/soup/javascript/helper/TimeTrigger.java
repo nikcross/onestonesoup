@@ -16,7 +16,11 @@ public class TimeTrigger implements Runnable {
 	public static TimeTrigger initialise(String fileName) {
 		TimeTrigger timeTrigger = getInstance();
 		timeTrigger.fileName = fileName;
-		timeTrigger.importSchedule();
+		try {
+			timeTrigger.importSchedule();
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
 		return timeTrigger;
 	}
 	
@@ -145,6 +149,18 @@ public class TimeTrigger implements Runnable {
 		private String script;
 	}
 	
+	public class TimeTriggerConfiguration {
+		private ScheduledTask[] scheduledTasks;
+
+		public ScheduledTask[] getScheduledTasks() {
+			return scheduledTasks;
+		}
+
+		public void setScheduledTasks(ScheduledTask[] scheduledTasks) {
+			this.scheduledTasks = scheduledTasks;
+		}
+	}
+	
 	private Map<String,ScheduledTask> schedule = new HashMap<String,ScheduledTask>();
 	
 	@Override
@@ -176,7 +192,7 @@ public class TimeTrigger implements Runnable {
 		return false;
 	}
 	
-	private void importSchedule() {
+	private void importSchedule() throws IOException {
 		if(fileName==null) {
 			return;
 		}
@@ -184,7 +200,8 @@ public class TimeTrigger implements Runnable {
 		if(config.exists()==false) {
 			return;
 		}
-		//TODO
+		Object object = JSONHelper.fromJSON( FileHelper.loadFileAsString(fileName) );
+		System.out.println(object);
 	}
 	
 	@Override
@@ -200,17 +217,17 @@ public class TimeTrigger implements Runnable {
 		if(fileName==null) {
 			return;
 		}
-		File config = new File(fileName);
-		if(config.getParentFile().exists()==false) {
-			config.getParentFile().mkdirs();
+		File configFile = new File(fileName);
+		if(configFile.getParentFile().exists()==false) {
+			configFile.getParentFile().mkdirs();
 		}
 		
-		StringBuffer configData = new StringBuffer();
-		for(String key: schedule.keySet()) {
-			ScheduledTask task = schedule.get(key);
-			configData.append( JSONHelper.toJSON(task) );
-		}
+		ScheduledTask[] tasks = schedule.values().toArray(new ScheduledTask[]{});
+		TimeTriggerConfiguration config = new TimeTriggerConfiguration();
+		config.setScheduledTasks(tasks);
 		
-		FileHelper.saveStringToFile(configData.toString(), config);
+		String configData = JSONHelper.toJSON(config);
+		
+		FileHelper.saveStringToFile(configData, configFile);
 	}
 }
