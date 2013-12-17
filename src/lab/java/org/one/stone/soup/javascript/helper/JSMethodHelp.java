@@ -11,4 +11,5 @@ public @interface JSMethodHelp {
 
 	String signature() default "";
 	String url() default "";
+	boolean exclude() default false;
 }

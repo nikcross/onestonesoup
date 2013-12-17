@@ -14,7 +14,7 @@ js.mount("OS","org.one.stone.soup.javascript.helper.OperatingSystem");
 js.mount("Web","org.one.stone.soup.javascript.helper.RemoteWebServiceAccess");
 js.mount("FileChooser","org.one.stone.soup.javascript.helper.FileChooser");
 js.mount("Popup","org.one.stone.soup.javascript.helper.Popup");
-TimeTrigger = org.one.stone.soup.javascript.helper.TimeTrigger;
+TimeTrigger = org.one.stone.soup.javascript.helper.TimeTrigger.getInstance();;
 
 function help(obj) {
 	if(typeof(obj)=="undefined") {

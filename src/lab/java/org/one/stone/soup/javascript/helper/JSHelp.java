@@ -37,10 +37,14 @@ public class JSHelp {
 			}
 			String methodLine = name+"."+method.getName()+"(";
 			Class<?>[] params = method.getParameterTypes();
+			String paramString = "";
 			for(Class param: params) {
-				methodLine+=param.getSimpleName()+", ";
+				if(paramString.length()>0) {
+					paramString+=", ";
+				}
+				paramString+=param.getSimpleName();
 			}
-			methodLine = methodLine.substring(0,methodLine.length()-2);
+			methodLine += paramString;
 			methodLine+=")";
 			methodLine+=" "+method.getReturnType().getSimpleName();
 			
