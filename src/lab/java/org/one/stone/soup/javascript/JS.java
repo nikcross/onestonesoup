@@ -1,11 +1,10 @@
 package org.one.stone.soup.javascript;
 
+import java.awt.GraphicsEnvironment;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -14,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.mozilla.javascript.NativeJavaClass;
 import org.one.stone.soup.core.DirectoryHelper;
 import org.one.stone.soup.core.FileHelper;
 import org.one.stone.soup.javascript.helper.JSHelp;
@@ -122,6 +120,10 @@ public class JS extends CommandLineTool implements Runnable{
 			return null;
 		}
 		
+		public void mountObject(String alias,Object object) {
+				jsEngine.mount(alias,object);
+		}
+		
 		public String getObjectAlias(Object object) {
 			return jsEngine.getObjectKey(object);
 		}
@@ -191,8 +193,16 @@ public class JS extends CommandLineTool implements Runnable{
 			System.out.println(JSHelp.help(object, name));
 		}
 		
+		public boolean isHeadless() {
+			return GraphicsEnvironment.getLocalGraphicsEnvironment().isHeadless();
+		}
+		
 		public void exit() {
 			System.exit(0);
+		}
+
+		public Object getObject(String name) {
+			return jsEngine.getObject(name);
 		}
 	}
 	

@@ -9,7 +9,7 @@ import java.util.Map;
 import org.one.stone.soup.core.FileHelper;
 import org.one.stone.soup.core.javascript.JSONHelper;
 
-public class LibraryDrive {
+public class LibraryManager {
 
 	public class PackageDetails {
 		public String getName() {

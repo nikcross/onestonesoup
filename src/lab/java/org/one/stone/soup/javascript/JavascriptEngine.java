@@ -92,8 +92,13 @@ public class JavascriptEngine {
 			return context;
 		}
 		context = contextFactory.createContext();
-		Scriptable scritable = context.initStandardObjects();
-		context.scriptable = scritable;
+		if(scopeName.equals(GLOBAL)) {
+			Scriptable scritable = context.initStandardObjects();
+			context.scriptable = scritable;
+		} else {
+			Scriptable scritable = context.newObject(scopes.get(GLOBAL).scriptable);
+			context.scriptable = scritable;
+		}
 
 		scopes.put(scopeName,context);
 		return context;

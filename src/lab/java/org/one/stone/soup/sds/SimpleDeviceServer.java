@@ -27,6 +27,7 @@ import org.one.stone.soup.core.javascript.JSONHelper;
 import org.one.stone.soup.javascript.JS;
 import org.one.stone.soup.javascript.JavascriptEngine;
 import org.one.stone.soup.javascript.JavascriptException;
+import org.one.stone.soup.javascript.helper.Drive;
 import org.one.stone.soup.process.CommandLineTool;
 
 
@@ -38,6 +39,7 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 	private String address="localhost";
 	private String pageFile;
 	private Map<String,Object> services;
+	private Drive drive;
 	
 	private class ServerThread implements Runnable {
 		
@@ -89,6 +91,8 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 	@Override
 	public void process() {
 		services = new HashMap<String,Object>();
+		drive = (Drive)((NativeJavaObject)JS.getInstance().getObject("Drive")).unwrap();
+		
 		if(hasOption("N")==false) {
 			start();
 		}
@@ -224,10 +228,10 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 		StringBuilder data = new StringBuilder();
 		data.append("HTTP/1.1 200 OK\n");
 		data.append("Server: Simple Sevice Server\n");
-		data.append("Content-Length: "+new File(pageFile).length()+"\n");
+		data.append("Content-Length: "+drive.getFileToRead(pageFile).length()+"\n");
 		data.append("Content-Type: text/html\n\n");
 		
-		data.append( FileHelper.loadFileAsString(pageFile) );
+		data.append( FileHelper.loadFileAsString(drive.getFileToRead(pageFile)) );
 		FileHelper.saveStringToOutputStream( data.toString(), socket.getOutputStream() );
 	}
 	
@@ -262,8 +266,7 @@ public class SimpleDeviceServer extends CommandLineTool implements Runnable{
 	
 	private void sendResource(EntityTree header,Socket socket) throws IOException {
 		String request = header.getAttribute("resource");
-		File root = new File(pageFile).getParentFile().getParentFile();
-		File resource = new File(root.getAbsolutePath()+"/"+request);
+		File resource = drive.getFileToRead(request);
 		if(resource.exists()==false) {
 			send404(header, socket);
 		}

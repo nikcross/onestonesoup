@@ -1,4 +1,5 @@
-out.println("SJS Version 0.0.1 alpha");
+out.println("SJS Version 0.0.2 alpha");
+out.println("Initialising Library.");
 
 js.mount("ClipBoard","org.one.stone.soup.core.ClipBoard");
 js.mount("StringHelper","org.one.stone.soup.core.StringHelper");
@@ -15,6 +16,31 @@ js.mount("Web","org.one.stone.soup.javascript.helper.RemoteWebServiceAccess");
 js.mount("FileChooser","org.one.stone.soup.javascript.helper.FileChooser");
 js.mount("Popup","org.one.stone.soup.javascript.helper.Popup");
 TimeTrigger = org.one.stone.soup.javascript.helper.TimeTrigger.getInstance();;
+
+Application = new function() {
+	this.start = function(name) {
+		out.println("here");
+		var application = null;
+		var config = eval( ""+FileHelper.loadFileAsString(Drive.getFileToRead(name+"/"+name+"-configuration.json")) );
+		//Load apps it depends on if not already loaded
+		if(config.dependencies) {
+			for(i in config.dependencies) {
+				dependency = config.dependencies[i];
+				if(!eval(dependency)) {
+					this.start( dependency );
+				}
+			}
+		}
+		if(config.initScript) {
+			application = js.runScript( Drive.getFileToRead(name+"/"+config.initScript).getAbsolutePath() );
+		} else {
+			application = js.runScript( Drive.getFileToRead(name+"/"+name+"-initialise.sjs").getAbsolutePath() );
+		}
+	
+		js.mountObject(name,application);
+	}
+}
+//js.mountObject("Application",Application);
 
 function help(obj) {
 	if(typeof(obj)=="undefined") {
@@ -39,3 +65,23 @@ function help(obj) {
 		}
 	}
 }
+js.runScript("library/Authentication/Authentication.sjs");
+
+out.println("Library Initialised.");
+help();
+
+if(js.isHeadless()==true) {
+	out.println("Please login using Authentication.login(userName,password);");
+} else {
+	out.println("Please log in");
+	userName = Popup.requestInput("Please enter your user name");
+	if(userName) {
+		password = Popup.requestInput("Please enter your password");
+	} else {
+		userName="guest";
+		password="password";
+	}
+	Authentication.login(userName,password);
+}
+out.println("Library Initialised.");
+out.println("Ready");
