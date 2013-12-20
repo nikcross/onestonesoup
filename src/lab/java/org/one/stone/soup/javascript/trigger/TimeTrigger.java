@@ -1,4 +1,4 @@
-package org.one.stone.soup.javascript.helper;
+package org.one.stone.soup.javascript.trigger;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,6 +47,7 @@ public class TimeTrigger implements Runnable {
 		ScheduledTask task = getInstance().getNewScheduledTask();
 		task.setAlias(alias);
 		task.setMilliseconds(milliSeconds);
+		task.setNextRunTime(System.currentTimeMillis()+task.getMilliseconds());
 		getInstance().schedule.put(alias, task);
 	}
 	
@@ -66,8 +67,8 @@ public class TimeTrigger implements Runnable {
 		getInstance().schedule.put(alias, task);
 	}
 	
-	private ScheduledTask getNewScheduledTask() {
-		return new ScheduledTask();
+	private ScheduledTask getNewScheduledTask(String script) {
+		return new ScheduledTask(script);
 	}
 
 	public static void runMonthly(String alias,int day, int hour,String script) {
@@ -139,8 +140,9 @@ public class TimeTrigger implements Runnable {
 		
 		boolean timeToRun = true;
 		if(task.getMilliseconds()!=null) {
-			if(task.getMilliseconds().intValue()!=time%TimeConstants.SECOND) {
-				timeToRun = false;
+			if(time>=task.nextRunTime()) {
+				timeToRun=true;
+				task.setNextRunTime(time+task.getMilliseconds());
 			}
 		}
 		if(task.getSecond()!=null) {
@@ -193,6 +195,9 @@ public class TimeTrigger implements Runnable {
 		//Object object = JSONHelper.fromJSON( FileHelper.loadFileAsString(fileName) );
 		TimeTriggerConfiguration config = (TimeTriggerConfiguration)JavaTree.toObject( XmlHelper.parseElement(FileHelper.loadFileAsString(fileName)) );
 		for(ScheduledTask task: config.getScheduledTasks()) {
+			if(task.getMilliseconds()!=null) {
+				task.setNextRunTime(System.currentTimeMillis()+task.getMilliseconds());
+			}
 			schedule.put(task.getAlias(), task);
 		}
 		System.out.println("Loaded TimeTrigger config "+configFile);

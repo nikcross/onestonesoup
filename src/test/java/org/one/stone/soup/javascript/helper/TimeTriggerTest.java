@@ -7,6 +7,8 @@ import java.io.IOException;
 
 import org.junit.Test;
 import org.one.stone.soup.core.FileHelper;
+import org.one.stone.soup.javascript.trigger.ScheduledTask;
+import org.one.stone.soup.javascript.trigger.TimeTrigger;
 
 public class TimeTriggerTest {
 
