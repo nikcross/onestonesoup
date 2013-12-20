@@ -3,8 +3,8 @@ package org.one.stone.soup.core.data;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import org.one.stone.soup.core.NameHelper;
 
@@ -116,48 +116,36 @@ public class JavaTree {
 
 	private static Method[] getGetters(Class clazz)
 	{
-		Method[] methods = clazz.getMethods();
-
-		Vector vGetters = new Vector();
-		for(int loop=0;loop<methods.length;loop++)
+		List<Method> getters = new ArrayList<Method>();
+		for(Method method: clazz.getMethods())
 		{
 			if(
-					methods[loop].getName().substring(0,3).equals("get") &&
-					methods[loop].getParameterTypes().length==0 &&
-					Modifier.isPublic( methods[loop].getModifiers() )==true)
+					method.getName().substring(0,3).equals("get") &&
+					method.getParameterTypes().length==0 &&
+					Modifier.isPublic( method.getModifiers() )==true)
 			{
-				vGetters.addElement(methods[loop]);
+				getters.add(method);
 			}
 		}
 
 		// Check for matching setter
-		for(int loop=0;loop<vGetters.size();loop++)
+		for(Method method: clazz.getMethods())
 		{
-			Method method = (Method)vGetters.elementAt(loop);
 			Class returnType = method.getReturnType();
 			String setterName = "s"+method.getName().substring(1);
 			try{
 				Method setter = clazz.getMethod(setterName,new Class[]{returnType});
 				if( Modifier.isPublic(setter.getModifiers())==false )
 				{
-					vGetters.remove(method);
-					loop--;			
+					getters.remove(method);	
 				}
 			}
 			catch(NoSuchMethodException me)
 			{
-				vGetters.remove(method);
-				loop--;
+				getters.remove(method);
 			}
 		}
-		
-		Method[] getters = new Method[vGetters.size()];
-		for(int loop=0;loop<vGetters.size();loop++)
-		{
-			getters[loop] = (Method)vGetters.elementAt(loop);
-		}
-
-		return getters;
+		return getters.toArray(new Method[]{});
 	}
 	
 	public static Object toObject(EntityTree xInstance) {
@@ -174,16 +162,6 @@ public class JavaTree {
 
 			for(int loop=0;loop<xAttributes.size();loop++)
 			{
-				/*Method[] m = clazz.getMethods();
-				for(int loopM=0;loopM<m.length;loopM++)
-				{
-					System.out.println("method:"+m[loopM].getName());
-					Class[] c = m[loopM].getParameterTypes();
-					for(int loopC=0;loopC<c.length;loopC++)
-					{
-						System.out.println("  param:"+c[loopC].getName());
-					}
-				}*/
 
 				EntityTree.TreeEntity xAttribute = xAttributes.get(loop);
 

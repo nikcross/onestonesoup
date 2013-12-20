@@ -52,7 +52,7 @@ public class TimeTriggerTest {
 		
 		String data = FileHelper.loadFileAsString(temp);
 		
-		assertEquals(CONFIG,data);
+		assertEquals("Config mismatch",CONFIG,data);
 	}
 	
 	@Test
