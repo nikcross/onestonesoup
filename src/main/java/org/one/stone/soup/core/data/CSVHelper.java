@@ -63,4 +63,28 @@ public class CSVHelper {
 		
 		return data.toString();
 	}
+	public static String toCSV(EntityTable table) {
+		StringBuffer data = new StringBuffer();
+		int columnCount = table.getColumnDefinitions().size();
+		
+		for(int columnIndex=0;columnIndex<columnCount;columnIndex++) {
+			if(columnIndex>0) {
+				data.append(",");
+			}
+			data.append( table.getColumnDefinitions().getColumn(columnIndex) );
+		}
+		data.append("\n");
+		for(int rowIndex=0;rowIndex<table.size();rowIndex++) {
+			for(int columnIndex=0;columnIndex<columnCount;columnIndex++) {
+				if(columnIndex>0) {
+					data.append(",");
+				}
+				data.append( table.getRow(rowIndex).getColumn(columnIndex) );
+			}
+			data.append("\n");
+		}
+		
+		return data.toString();
+	}
+	
 }

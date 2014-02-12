@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.one.stone.soup.core.StringHelper;
@@ -51,19 +53,31 @@ public class XmlHelper {
 		if (tag.indexOf(" ")!=-1) {
 			name = tag.substring(0, tag.indexOf(' '));
 			tag = tag.substring(tag.indexOf(' ')+1);
+		} else if(name.endsWith("/")||name.endsWith("?")) {
+			name = name.substring(0,name.length()-1);
+			tag = "/";
 		} else {
 			tag="";
+		}
+		if(name.startsWith("![CDATA[")) {
+			parent.setValue(StringHelper.between(name, "![CDATA[", "]]"));
+			return parent;
 		}
 		if(name.equals("/"+parent.getName())) {
 			return null;
 		}
+		
 		TreeEntity entity = parent.addChild(name);
+
 		//Add Attributes
 		tag = tag.trim();
 		if(tag.length()>0) {
 			tag = tag.replace(" =", "=").replace("= ", "=");
-			String[] attributes = tag.split(" ");
+			String[] attributes = StringHelper.split(tag, " ", "\"", "\"");
 			for(String attribute: attributes) {
+				if(attribute.indexOf("=")==-1) {
+					continue;
+				}
 				String key = attribute.substring(0,attribute.indexOf("="));
 				attribute = attribute.substring(attribute.indexOf("=")+1);
 				String value = attribute.substring(attribute.indexOf("\"")+1,attribute.lastIndexOf("\""));
@@ -71,7 +85,7 @@ public class XmlHelper {
 			}
 		}
 		
-		if(tag.length()!=0 && tag.lastIndexOf('/')==tag.length()-1) {
+		if(tag.length()!=0 && (tag.lastIndexOf('/')==tag.length()-1||tag.lastIndexOf('?')==tag.length()-1)) {
 			return entity;
 		}
 		
@@ -154,5 +168,14 @@ public class XmlHelper {
 			result.append(tabs);
 		}
 		result.append("</"+entity.getName()+">");
+	}
+
+	public static Map<String,String> getChildAsMap(EntityTree tree, String name) {
+		List<TreeEntity> list = tree.getChildren();
+		Map<String,String> map = new HashMap<String,String>();
+		for(TreeEntity entity: list) {
+			map.put(entity.getAttribute(name),entity.getValue());
+		}
+		return map;
 	}
 }

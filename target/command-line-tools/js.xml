@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project One Stone Soup Core">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <target name="create_run_jar">
+        <jar destfile="C:\Users\Nik\git\OneStoneSoup\target\command-line-tools\JS.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="org.one.stone.soup.javascript.JS"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="C:/Users/Nik/git/OneStoneSoup/target/classes"/>
+            <zipfileset excludes="META-INF/*.SF" src="C:/Users/Nik/git/OneStoneSoup/src/lab/js/library/TextToSpeach/lib/cmu_time_awb.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="C:/Users/Nik/git/OneStoneSoup/src/lab/js/library/TextToSpeach/lib/cmu_us_kal.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="C:/Users/Nik/git/OneStoneSoup/src/lab/js/library/TextToSpeach/lib/cmudict04.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="C:/Users/Nik/git/OneStoneSoup/src/lab/js/library/TextToSpeach/lib/cmulex.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="C:/Users/Nik/git/OneStoneSoup/src/lab/js/library/TextToSpeach/lib/cmutimelex.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="C:/Users/Nik/git/OneStoneSoup/src/lab/js/library/TextToSpeach/lib/en_us.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="C:/Users/Nik/git/OneStoneSoup/src/lab/js/library/TextToSpeach/lib/freetts-jsapi10.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="C:/Users/Nik/git/OneStoneSoup/src/lab/js/library/TextToSpeach/lib/freetts.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="C:/Users/Nik/git/OneStoneSoup/src/lab/js/library/TextToSpeach/lib/jsapi.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="C:/Users/Nik/git/OneStoneSoup/src/lab/js/library/EMail/javax.mail.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="C:/Users/Nik/git/OneStoneSoup/src/lab/java/org/one/stone/soup/javascript/rhino-js-1.7R2.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="C:/Users/Nik/.m2/repository/junit/junit/4.10/junit-4.10.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="C:/Users/Nik/.m2/repository/org/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1.jar"/>
+        </jar>
+    </target>
+</project>

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.MessageDigest;
+import java.util.zip.GZIPOutputStream;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -118,6 +119,19 @@ public class FileHelper {
 		fromInputStream.close();
 		oStream.close();
 	}
+	public static int copyInputStreamToOutputStream(InputStream fromInputStream,OutputStream oStream) throws IOException {
+		byte[] buffer = new byte[1000];
+		int sizeRead = fromInputStream.read(buffer);
+		while(sizeRead>0)
+		{
+			oStream.write(buffer,0,sizeRead);
+			oStream.flush();
+			sizeRead = fromInputStream.read(buffer);
+		}
+		fromInputStream.close();
+		oStream.close();
+		return sizeRead;
+	}	
 	public static int countLines(File file) throws IOException {
 		String data = FileHelper.loadFileAsString(file);
 		String[] lines = data.split("\n");
@@ -125,9 +139,9 @@ public class FileHelper {
 		return lines.length;
 	}
 	
-	public String getExtension(String fileName) {
+	public static String getExtension(String fileName) {
 		if(fileName.indexOf(".")!=-1) {
-			return fileName.substring(fileName.lastIndexOf("."));
+			return fileName.substring(fileName.lastIndexOf(".")+1);
 		} else {
 			return "";
 		}
@@ -160,5 +174,22 @@ public class FileHelper {
 		} finally {
 			out.close();
 		}
+	}
+	public static int copyFileToOutputStream(String fileName,
+			OutputStream out) throws IOException {
+		InputStream in = new FileInputStream(fileName);
+
+		byte[] buffer = new byte[1000];
+		int sizeRead = in.read(buffer);
+		while(sizeRead>0)
+		{
+			out.write(buffer,0,sizeRead);
+			out.flush();
+			sizeRead = in.read(buffer);
+		}
+		in.close();
+		out.close();
+		
+		return sizeRead;
 	}
 }

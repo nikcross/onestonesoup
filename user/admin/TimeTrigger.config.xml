@@ -1,0 +1,3 @@
+<instance class="org.one.stone.soup.javascript.helper.TimeTriggerConfiguration">
+	<attribute name="scheduledTasks" class="[Lorg.one.stone.soup.javascript.helper.ScheduledTask;"/>
+</instance>

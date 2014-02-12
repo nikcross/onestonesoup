@@ -94,6 +94,9 @@ public class EntityTree {
 		public List<TreeEntity> getChildren() {
 			return children;
 		}
+		public boolean removeChild(TreeEntity child) {
+			return children.remove(child);
+		}
 		public boolean removeChild(String name) {
 			TreeEntity target = getChild(name);
 			if(target==null) {
@@ -193,6 +196,10 @@ public class EntityTree {
 
 	public boolean removeChild(String name) {
 		return root.removeChild(name);
+	}
+	
+	public boolean removeChild(TreeEntity child) {
+		return root.removeChild(child);
 	}
 
 	public void removeChildren(String name) {
