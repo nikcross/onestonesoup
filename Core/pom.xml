@@ -14,9 +14,7 @@ org.one.stone.soup
 core
     </artifactId>
 
-    <version>
-0.0.8-SNAPSHOT
-    </version>
+    <version>0.0.9</version>
 <dependencies>
     <dependency>
     <groupId>junit</groupId>
