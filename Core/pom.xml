@@ -7,15 +7,25 @@
     </modelVersion>
 
     <groupId>
-org.one.stone.soup
+org.onestonesoup
     </groupId>
-
     <artifactId>
 core
     </artifactId>
 
-    <version>0.0.9</version>
+    <version>0.1.2</version>
 <dependencies>
+    <dependency>
+        <groupId>com.twelvemonkeys.imageio</groupId>
+        <artifactId>imageio-jpeg</artifactId>
+        <version>3.0.1</version> <!-- Alternatively, build your own 3.1-something version -->
+    </dependency>
+    <dependency>
+        <groupId>com.twelvemonkeys.imageio</groupId>
+        <artifactId>imageio-tiff</artifactId>
+        <version>3.0.1</version> <!-- Alternatively, build your own 3.1-something version -->
+    </dependency>
+    
     <dependency>
     <groupId>junit</groupId>
     <artifactId>junit</artifactId>

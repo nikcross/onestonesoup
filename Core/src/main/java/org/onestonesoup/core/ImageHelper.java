@@ -23,8 +23,16 @@ import javax.swing.ImageIcon;
 
 public class ImageHelper {
 
+	public static BufferedImage loadImage(String fileName) throws IOException {
+		return ImageIO.read( new File(fileName) );
+	}
+	
 	public static BufferedImage loadImage(File file) throws IOException {
 		return ImageIO.read(file);
+	}
+	
+	public static void saveImage(String fileName,BufferedImage image,String fileType) throws IOException {
+		ImageIO.write(image, fileType, new File(fileName) );
 	}
 	
 	public static void saveImage(File file,BufferedImage image) throws IOException {
@@ -108,6 +116,10 @@ public class ImageHelper {
 		return new Color(data[0]);
 	}
 
+	public static Image clipImage(BufferedImage source,int x, int y, int w, int h) {
+		return source.getSubimage(x, y, w, h);
+	}
+	
 	public static Image resizeImage(BufferedImage source, int width,
 			int height, boolean maintainAspectRatio) throws IOException {
 		if (maintainAspectRatio) {

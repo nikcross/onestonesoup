@@ -1,7 +1,9 @@
 package org.onestonesoup.core.constants;
 
-public interface TimeConstants {
+public class TimeConstants {
 
+	private TimeConstants(){};
+	
 	public static final long MILLISECOND = 1L;
 	public static final long SECOND = 1000L;
 	public static final long MINUTE = SECOND*60;

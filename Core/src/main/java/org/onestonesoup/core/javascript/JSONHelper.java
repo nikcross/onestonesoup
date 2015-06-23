@@ -23,7 +23,7 @@ public class JSONHelper {
 	
 	public static String toJSON(EntityTree.TreeEntity node) {
 		StringBuilder data = new StringBuilder(node.getName());
-		data.append(" {");
+		data.append(": {");
 		
 		Map<String,String> attributes = node.getAttributes();
 		boolean first = true;
@@ -32,7 +32,7 @@ public class JSONHelper {
 				data.append(",");
 			}
 			String value = attributes.get(key);
-			data.append(" "+key+": \""+value+"\"");
+			data.append(" "+key+": \""+JavascriptHelper.escape(value)+"\"");
 			
 			first = false;
 		}
@@ -41,7 +41,11 @@ public class JSONHelper {
 				data.append(",");
 			}
 			
-			data.append(" "+toJSON(child));
+			if(child.getValue()!=null) {
+				data.append(" "+child.getName()+": \""+JavascriptHelper.escape(child.getValue())+"\"");
+			} else {
+				data.append(" "+toJSON(child));
+			}
 			
 			first = false;
 		}
