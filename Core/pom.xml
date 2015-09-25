@@ -1,54 +1,47 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns="http://maven.apache.org/POM/4.0.0"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" >
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<groupId>org.onestonesoup</groupId>
+	<artifactId>core</artifactId>
+	<version>0.1.2</version>
+	
+	<dependencies>
+		<dependency>
+			<groupId>com.twelvemonkeys.imageio</groupId>
+			<artifactId>imageio-jpeg</artifactId>
+			<version>3.0.1</version> <!-- Alternatively, build your own 3.1-something version -->
+		</dependency>
+		<dependency>
+			<groupId>com.twelvemonkeys.imageio</groupId>
+			<artifactId>imageio-tiff</artifactId>
+			<version>3.0.1</version> <!-- Alternatively, build your own 3.1-something version -->
+		</dependency>
 
-    <modelVersion>
-4.0.0
-    </modelVersion>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.10</version>
+		</dependency>
 
-    <groupId>
-org.onestonesoup
-    </groupId>
-    <artifactId>
-core
-    </artifactId>
+	</dependencies>
+	<build>
 
-    <version>0.1.2</version>
-<dependencies>
-    <dependency>
-        <groupId>com.twelvemonkeys.imageio</groupId>
-        <artifactId>imageio-jpeg</artifactId>
-        <version>3.0.1</version> <!-- Alternatively, build your own 3.1-something version -->
-    </dependency>
-    <dependency>
-        <groupId>com.twelvemonkeys.imageio</groupId>
-        <artifactId>imageio-tiff</artifactId>
-        <version>3.0.1</version> <!-- Alternatively, build your own 3.1-something version -->
-    </dependency>
-    
-    <dependency>
-    <groupId>junit</groupId>
-    <artifactId>junit</artifactId>
-    <version>4.10</version>
-</dependency>
-            
-</dependencies>
-    <build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+					<showDeprecation>true</showDeprecation>
+					<showWarnings>true</showWarnings>
+					<fork>true</fork>
+				</configuration>
+			</plugin>
+		</plugins>
 
-    <plugins>
- <plugin>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-compiler-plugin</artifactId>
-    <configuration>
-        <source>1.6</source>
-        <target>1.6</target>
-        <showDeprecation>true</showDeprecation>
-        <showWarnings>true</showWarnings>
-        <fork>true</fork>
-    </configuration>
-</plugin>
-    </plugins>
-
-    </build>
+	</build>
 
 </project>
