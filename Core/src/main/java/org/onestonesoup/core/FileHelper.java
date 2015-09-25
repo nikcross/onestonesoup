@@ -40,6 +40,7 @@ public class FileHelper {
 		saveStringToFile(data,new File(fileName));
 	}
 	public static void saveStringToFile(String data,File file) throws IOException {
+		file.getParentFile().mkdirs();
 		OutputStream out = new FileOutputStream(file);
 		
 		try{
@@ -54,6 +55,7 @@ public class FileHelper {
 	}
 	
 	public static void appendStringToFile(String data,File file) throws IOException {
+		file.getParentFile().mkdirs();
 		OutputStream out = new FileOutputStream(file,true);
 		
 		try{
@@ -120,6 +122,9 @@ public class FileHelper {
 		oStream.close();
 	}
 	public static int copyInputStreamToOutputStream(InputStream fromInputStream,OutputStream oStream) throws IOException {
+		return copyInputStreamToOutputStream(fromInputStream, oStream, true);
+	}
+	public static int copyInputStreamToOutputStream(InputStream fromInputStream,OutputStream oStream,boolean closeFromInputStream) throws IOException {
 		byte[] buffer = new byte[1000];
 		int sizeRead = fromInputStream.read(buffer);
 		while(sizeRead>0)
@@ -128,7 +133,9 @@ public class FileHelper {
 			oStream.flush();
 			sizeRead = fromInputStream.read(buffer);
 		}
-		fromInputStream.close();
+		if(closeFromInputStream) {
+			fromInputStream.close();
+		}
 		oStream.close();
 		return sizeRead;
 	}	
