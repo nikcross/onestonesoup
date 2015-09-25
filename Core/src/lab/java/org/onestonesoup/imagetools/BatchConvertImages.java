@@ -36,7 +36,11 @@ public class BatchConvertImages extends CommandLineTool {
 		File sourceFolder = new File(getParameter(0));
 		File targetFolder = new File(getParameter(1));
 		
+		System.out.println("Converting "+sourceFolder.list().length+" images");
+		int count = 0;
 		for(File file: sourceFolder.listFiles()) {
+			count ++;
+			System.out.println(" converting image "+file+" #"+count);
 			BufferedImage image;
 			String fileName = file.getName();
 			fileName = fileName.substring(0,fileName.indexOf("."));
