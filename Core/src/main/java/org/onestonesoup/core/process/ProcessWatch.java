@@ -59,8 +59,16 @@ public class ProcessWatch implements Runnable {
 			
 		}
 		
+		while(process.isAlive()) {
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		
 		for(String matcher: getMatchers().keySet()) {
-			getMatchers().get(matcher).processEnd();
+			getMatchers().get(matcher).processEnd(process.exitValue());
 		}
 	}
 }
