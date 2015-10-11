@@ -24,7 +24,7 @@ public class DirSync extends CommandLineTool {
 
 	@Override
 	public String getUsage() {
-		return "[-D (will delete files)] logPath directoryA directoryB";
+		return "[-D (will delete files)] [-L (log ony)] logPath directoryA directoryB";
 	}
 
 	@Override
@@ -35,6 +35,9 @@ public class DirSync extends CommandLineTool {
 		directorySynchronizer.setDirectoryB( getParameter(2) );
 		if(hasOption("D")) {
 			directorySynchronizer.setDeleteFiles(true);
+		}
+		if(hasOption("L")) {
+			directorySynchronizer.setLogOnly(true);
 		}
 		directorySynchronizer.start();
 	}

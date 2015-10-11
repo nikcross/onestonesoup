@@ -173,6 +173,22 @@ public class FileHelper {
 			return e.getMessage();
 		}
 	}
+	
+	public static boolean isSameFile(File fileA, File fileB) {
+		if(fileA.length()!=fileB.length()) {
+			return false;
+		}
+		if(fileA.length()==0) {
+			return true;
+		}
+		
+		if( generateMD5Checksum(fileA).equals(generateMD5Checksum(fileB)) ) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 	public static void saveStringToOutputStream(String data,
 			OutputStream out) throws IOException {
 		try{

@@ -17,6 +17,7 @@ public class DirectorySynchronizer extends DirectoryCrawler implements Runnable{
 	private File sourceDirectoryA;
 	private File sourceDirectoryB;
 	private boolean deleteFiles = false;
+	private boolean logOnly = false;
 	private long timeBetweenRuns = TimeConstants.SECOND*15;
 	private long timeBetweenFiles = 10;
 	private boolean running=false;
@@ -39,6 +40,10 @@ public class DirectorySynchronizer extends DirectoryCrawler implements Runnable{
 	
 	public void setDeleteFiles(boolean willDeleteFiles) {
 		deleteFiles = willDeleteFiles;
+	}
+	
+	public void setLogOnly(boolean logOnly) {
+		this.logOnly = logOnly;
 	}
 	
 	public void run() {
@@ -222,18 +227,22 @@ public class DirectorySynchronizer extends DirectoryCrawler implements Runnable{
 		
 		if(file.lastModified()>otherFile.lastModified()) {
 			try {
-				otherFile.getParentFile().mkdirs();
-				FileHelper.copyFileToFile(file, otherFile);
-				otherFile.setLastModified(file.lastModified());
+				if(!logOnly) {
+					otherFile.getParentFile().mkdirs();
+					FileHelper.copyFileToFile(file, otherFile);
+					otherFile.setLastModified(file.lastModified());
+				}
 				bestFile = file;
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		} else {
 			try {
-				file.getParentFile().mkdirs();
-				FileHelper.copyFileToFile(otherFile,file);
-				file.setLastModified(otherFile.lastModified());
+				if(!logOnly) {
+					file.getParentFile().mkdirs();
+					FileHelper.copyFileToFile(otherFile,file);
+					file.setLastModified(otherFile.lastModified());
+				}
 				bestFile = otherFile;
 			} catch (IOException e) {
 				e.printStackTrace();
