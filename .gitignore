@@ -1,0 +1,17 @@
+.project
+.classpath
+.settings/
+.swp
+target/
+*.iml
+*.jar
+*.war
+*.class
+*.orig
+*.zip
+*~
+nik-*.sh
+/content/changes/
+/content/jetty/
+/content/*/history
+/content/.project
