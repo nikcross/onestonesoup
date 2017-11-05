@@ -15,3 +15,5 @@ nik-*.sh
 /content/jetty/
 /content/*/history
 /content/.project
+.DS_Store
+.idea/workspace.xml
