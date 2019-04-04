@@ -2,6 +2,7 @@ package org.onestonesoup.core.data;
 
 import static org.junit.Assert.*;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.onestonesoup.core.data.EntityTree;
 import org.onestonesoup.core.data.XmlHelper;
@@ -100,7 +101,8 @@ public class XmlHelperTest {
             
             assertEquals("Failed to parse attribute",nonXmlData,result);            
     }
-//	@Test
+	@Test
+	@Ignore
     public void parserReadsCDATA()
     {
             String nonXmlData = " >some \" \n line2 \n line3 [text] in here '< ";
@@ -119,7 +121,8 @@ public class XmlHelperTest {
             
             assertEquals("Failed to parse CDATA",nonXmlData,result);
     }
-//    @Test
+    @Test
+	@Ignore
     public void parserWritesCDATA()
     {
             String nonXmlData = " >some \" \n line2 \n line3 [text] in here '< ";

@@ -47,16 +47,10 @@ public class JavaTree {
 				xAttribute.setAttribute( "class",returnTypeClassName );
 				xAttribute.setAttribute( "name",attributeName );
 
-				if(
-						attribute instanceof String
-				)
-				{
+				if(attribute instanceof String) {
 					xAttribute.setValue( (String)attribute );
 				}
-				else if(
-						attribute instanceof String[]
-				)
-				{
+				else if( attribute instanceof String[]) {
 					int count = Array.getLength(attribute);
 					for(int loopA=0;loopA<count;loopA++)
 					{
@@ -65,14 +59,12 @@ public class JavaTree {
 
 						xItem.setValue( (String)item );
 					}
-				}				
-				else if(
+				} else if(
 						attribute instanceof Boolean ||
 						attribute instanceof Integer ||
 						attribute instanceof Long ||
 						attribute instanceof Double
-				)
-				{
+				) {
 					xAttribute.setAttribute( "value",""+attribute );
 				}
 				else if(
@@ -80,8 +72,7 @@ public class JavaTree {
 						attribute instanceof Integer[] ||
 						attribute instanceof Long[] ||
 						attribute instanceof Double[]
-				)
-				{
+				) {
 					int count = Array.getLength(attribute);
 					for(int loopA=0;loopA<count;loopA++)
 					{
@@ -90,18 +81,14 @@ public class JavaTree {
 
 						xItem.setAttribute( "value",""+item );
 					}
-				}
-				else if(attribute.getClass().isArray())
-				{
+				} else if(attribute.getClass().isArray()) {
 					int count = Array.getLength(attribute);
 					for(int loopA=0;loopA<count;loopA++)
 					{
 						Object item = Array.get(attribute,loopA);
 						xAttribute.addChild( toTree(item) );
 					}
-				}
-				else
-				{
+				} else {
 					xAttribute.addChild( toTree(attribute) );
 				}
 			}
@@ -160,8 +147,7 @@ public class JavaTree {
 
 			List<EntityTree.TreeEntity> xAttributes = xInstance.getChildren("attribute");
 
-			for(int loop=0;loop<xAttributes.size();loop++)
-			{
+			for(int loop=0;loop<xAttributes.size();loop++) {
 
 				EntityTree.TreeEntity xAttribute = xAttributes.get(loop);
 
@@ -177,17 +163,14 @@ public class JavaTree {
 				String value = xAttribute.getAttribute("value");
 
 				Method setter = clazz.getMethod(setterName,new Class[]{attributeClass} );
-				if( Modifier.isPublic(setter.getModifiers())==false )
-				{
+				if( Modifier.isPublic(setter.getModifiers())==false ) {
 					continue;
 				}
 				
 				Object attribute = null;
 
-				if(attributeClass.isArray())
-				{
-					if(attributeClass.isPrimitive() || attributeClass==String[].class)
-					{
+				if(attributeClass.isArray()) {
+					if(attributeClass.isPrimitive() || attributeClass==String[].class) {
 						attribute = Array.newInstance( attributeClass.getComponentType(),xAttribute.getChildren().size());
 						for(int loopI=0;loopI<xAttribute.getChildren().size();loopI++)
 						{

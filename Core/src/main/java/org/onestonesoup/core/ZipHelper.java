@@ -165,8 +165,10 @@ public class ZipHelper {
 				new File(folder.getAbsolutePath() + "/" + entry.getName())
 						.mkdirs();
 			} else {
-				copy(zipFile.getInputStream(entry), folder.getAbsolutePath()
-						+ "/" + entry.getName());
+
+				File entryFile = new File(folder.getAbsolutePath() + "/" + entry.getName());
+				if(entryFile.getParentFile().exists()==false) entryFile.getParentFile().mkdirs();
+				copy(zipFile.getInputStream(entry), entryFile.getAbsolutePath());
 			}
 		}
 		zipFile.close();
