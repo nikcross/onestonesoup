@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Core/Core.iml" filepath="$PROJECT_DIR$/Core/Core.iml" />
       <module fileurl="file://$PROJECT_DIR$/One Stone Soup Core.iml" filepath="$PROJECT_DIR$/One Stone Soup Core.iml" />
       <module fileurl="file://$PROJECT_DIR$/JS/js.iml" filepath="$PROJECT_DIR$/JS/js.iml" />
     </modules>

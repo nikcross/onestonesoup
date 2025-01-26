@@ -7,9 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.MessageDigest;
-import java.util.zip.GZIPOutputStream;
-
-import javax.xml.bind.DatatypeConverter;
 
 public class FileHelper {
 	
@@ -167,13 +164,24 @@ public class FileHelper {
 			}
 			fromInputStream.close();
 			byte[] hash = MD5.digest();
-			
-			return DatatypeConverter.printHexBinary(hash);
+
+			return printHexBinary(hash);
 		} catch (Exception e) {
 			return e.getMessage();
 		}
 	}
-	
+
+	private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+	public static String printHexBinary(byte[] bytes) {
+		char[] hexChars = new char[bytes.length * 2];
+		for (int j = 0; j < bytes.length; j++) {
+			int v = bytes[j] & 0xFF;
+			hexChars[j * 2] = HEX_ARRAY[v >>> 4];
+			hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
+		}
+		return new String(hexChars);
+	}
+
 	public static boolean isSameFile(File fileA, File fileB) {
 		if(fileA.length()!=fileB.length()) {
 			return false;

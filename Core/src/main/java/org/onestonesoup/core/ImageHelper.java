@@ -102,6 +102,30 @@ public class ImageHelper {
 		return Toolkit.getDefaultToolkit().createImage(ip);
 	}
 
+	public static int getImageWidth(Image image) {
+		return image.getWidth(null);
+	}
+
+	public static int getImageHeight(Image image) {
+		return image.getHeight(null);
+	}
+
+	public static int[] getImageData(Image image) {
+		int width = image.getWidth(null);
+		int height = image.getHeight(null);
+		int scan = width;
+		int[] data = new int[1];
+
+		PixelGrabber pGrab = new PixelGrabber(image, 0, 0, width, height, data,
+				0, scan);
+		try {
+			pGrab.grabPixels();
+		} catch (Exception e) {
+		}
+
+		return data;
+	}
+
 	public static Color getColorAt(Image image, int x, int y) {
 		int scan = image.getWidth(null);
 		int[] data = new int[1];
@@ -134,7 +158,7 @@ public class ImageHelper {
 		AffineTransform scaleTransform = AffineTransform.getScaleInstance(
 				scaleX, scaleY);
 		AffineTransformOp bilinearScaleOp = new AffineTransformOp(
-				scaleTransform, AffineTransformOp.TYPE_BILINEAR);
+				scaleTransform, AffineTransformOp.TYPE_BICUBIC);
 
 		return bilinearScaleOp.filter(source, new BufferedImage(width, height,
 				source.getType()));

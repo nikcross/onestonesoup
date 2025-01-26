@@ -24,7 +24,20 @@ public class ProcessWatch implements Runnable {
 		process = Runtime.getRuntime().exec(command);
 		watch(process.getInputStream());
 	}
-	
+
+	public boolean kill() throws InterruptedException {
+		process.destroy();
+		int count = 0;
+		//Be nice and give it 30 seconds to end
+		while( process.isAlive() && count<30 ) {
+			Thread.sleep( 1000 );
+		}
+		//Else force it to stop
+		if( process.isAlive() ) {
+			process.destroyForcibly();
+		}
+		return process.isAlive();
+	}
 	private void watch(InputStream stream) {
 		this.stream = stream;
 		

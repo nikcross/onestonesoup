@@ -3,7 +3,6 @@ package org.onestonesoup.core;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import javax.xml.bind.DatatypeConverter;
 
 /**
  * Created by nikcross on 10/08/17.
@@ -23,7 +22,7 @@ public class IdGenerator {
 		MessageDigest MD5 = MessageDigest.getInstance("MD5");
 
 		byte[] data = MD5.digest(name.getBytes());
-		String hex = DatatypeConverter.printHexBinary(data);
+		String hex = FileHelper.printHexBinary(data);
 		String number = ("" + new BigInteger(hex,16)).substring(0,digits);
 
 		return number;
